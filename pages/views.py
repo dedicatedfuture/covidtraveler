@@ -3,8 +3,9 @@ from django.http import HttpResponse
 
 # Create your views here.
 def index(request):
-	return HttpResponse("<h1>Hello World!</h1>")
+	#return HttpResponse("<h1>Hello World!</h1>")
+	return render(request, 'base.html')
 
 
 def contactus(request):
-	return render(request, 'contactus.html')
+	return render(request, 'pages/contactus.html')
