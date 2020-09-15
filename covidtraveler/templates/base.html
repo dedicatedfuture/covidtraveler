@@ -9,9 +9,9 @@
 <body>
 	<header id="header">
 		<ul>
-			<li><a href="default.asp">Home</a></li>
-			<li><a href="news.asp">News</a></li>
-			<li><a href="contact.asp">Contact</a></li>
+			<li><a href="{% url 'index' %}">Home</a></li>
+			<li><a href="{% url 'news' %}">News</a></li>
+			<li><a href="{% url 'contactus' %}">Contact</a></li>
 			<li><a href="about.asp">About</a></li>
 		</ul>
 	</header>
@@ -22,6 +22,10 @@
 	<h2>Where would you like to travel?</h2>
 
 	{% endblock content %}
+
+	<footer>
+		TODO Footer
+	</footer>
 	
 </body>
 </html>
