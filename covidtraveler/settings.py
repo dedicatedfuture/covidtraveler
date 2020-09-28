@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 import os
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,7 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = get_env_variable('COVIDTRAVELERSECRETKEY')
+SECRET_KEY = os.environ.get('COVIDTRAVELERSECRETKEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -76,7 +78,9 @@ WSGI_APPLICATION = 'covidtraveler.wsgi.application'
 
 
 
-COVIDTRAVELERDBPASSWORD = get_env_variable('COVIDTRAVELERDBPASSWORD')
+COVIDTRAVELERDBPASSWORD = os.environ.get('COVIDTRAVELERDBPASSWORD')
+
+
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -85,7 +89,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'tom_db',
         'USER': 'django',
-        'PASSWORD': 'COVIDTRAVELERDBPASSWORD',
+        'PASSWORD': COVIDTRAVELERDBPASSWORD,
         'HOST': 'localhost',
         'PORT': '3306',
     }
