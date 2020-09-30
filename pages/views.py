@@ -17,3 +17,6 @@ def news(request):
 	return render(request, 'pages/newsarticles.html', {
 		'feed':feed
 		})
+
+def about(request):
+	return render(request, 'pages/about.html')
