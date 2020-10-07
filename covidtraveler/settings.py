@@ -79,27 +79,29 @@ WSGI_APPLICATION = 'covidtraveler.wsgi.application'
 
 
 COVIDTRAVELERDBPASSWORD = os.environ.get('COVIDTRAVELERDBPASSWORD')
+COVIDTRAVELERAWSHOST = os.environ.get('COVIDTRAVELERAWSHOST')
 
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.mysql',
-#        'NAME': 'heroku_e3d24cfd7001d1e',
-#        'USER': 'bdd15d5cb61208',
-#        'PASSWORD': COVIDTRAVELERDBPASSWORD,
-#        'HOST': 'us-cdbr-east-02.cleardb.com',
-#        'PORT': '3306',
-#   }
-#} restored default database to complete test suite
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'mydatabase',
-    }
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'covidtraveler_db',
+        'USER': 'django',
+        'PASSWORD': COVIDTRAVELERDBPASSWORD,
+        'HOST': COVIDTRAVELERAWSHOST,
+        'PORT': '3306',
+   }
 }
+# restored default database to complete test suite
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': 'mydatabase',
+#    }
+#}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
