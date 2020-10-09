@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 import os
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,12 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'n72%t-0sud#r888a8x9_oudk@u26&v*dc(nvm&9n(o!=6*j)p2'
+
+SECRET_KEY = os.environ.get('COVIDTRAVELERSECRETKEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['calm-spire-40582.herokuapp.com', '127.0.0.1']
+
 
 
 # Application definition
@@ -43,6 +47,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -72,16 +77,31 @@ TEMPLATES = [
 WSGI_APPLICATION = 'covidtraveler.wsgi.application'
 
 
+
+COVIDTRAVELERDBPASSWORD = os.environ.get('COVIDTRAVELERDBPASSWORD')
+COVIDTRAVELERAWSHOST = os.environ.get('COVIDTRAVELERAWSHOST')
+
+
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': 'covidtraveler_db',
+#        'USER': 'django',
+#        'PASSWORD': COVIDTRAVELERDBPASSWORD,
+#        'HOST': COVIDTRAVELERAWSHOST,
+#        'PORT': '3306',
+#   }
+#}
+# restored default database to complete test suite
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': 'mydatabase',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -119,6 +139,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
