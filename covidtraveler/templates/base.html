@@ -18,10 +18,10 @@
 
 	{% block content %}
 
-	<h1>Welcome to COVID Traveler Warning</h1>
-	<h2>Where would you like to travel?</h2>
+	<h1 class="headings">Welcome to COVID Traveler Warning</h1>
+	<h2 class="headings">Where would you like to travel?</h2>
 
-	<form action="" method="post">
+	<form action="" method="post" class="forms">
 		{%csrf_token%}
 		{{ form }}
 		<br>
@@ -33,7 +33,9 @@
 	{% endblock content %}
 
 	<footer>
-		&reg; Penn State Great Valley
+		<div class="footer">
+			&reg; Penn State Great Valley
+		</div>
 	</footer>
 	
 </body>
