@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+
+{%block content %}
+<h2>Coronavirus News from CDC</h2>
+
+
+{% if feed.items %}
+
+	{% for item in feed.items %}
+		<div>
+		   <p>
+		       {{ item.published }}
+		       <a href="{{ item.link }}" target="_blank">{{ item.title }}</a>
+		       {{ item.author }}
+		   </p>
+		</div>
+	{% endfor %}
+
+{% endif %}
+
+
+
+{% endblock content %}
