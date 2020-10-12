@@ -26,7 +26,13 @@ body{
 #header li a:hover {
   background-color: #111;
 }
+.headings {
+  padding: 0 0 0 30px;
+}
+.forms{
+  padding: 0 0 0 30px;
+}
 
-footer{
-  
+.footer {
+  padding: 30px;
 }
