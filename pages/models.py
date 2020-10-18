@@ -1,6 +1,7 @@
 from django.db import models
 
 
+
 class UsZipFips(models.Model):
     zip = models.CharField(max_length=255, blank=True, null=True)
     countyname = models.CharField(db_column='CountyName', max_length=255, blank=True, null=True)  # Field name made lowercase.
@@ -40,3 +41,11 @@ class CovidFinalmasterTable(models.Model):
     class Meta:
         managed = False
         db_table = 'covid_finalmaster_table'
+
+class Feedback(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    body = models.TextField()
+
+    def __str__(self):
+        return self.name

@@ -9,6 +9,7 @@ class TestUrls(SimpleTestCase):
 		url = reverse('index')
 		self.assertEquals(resolve(url).func, index)
 		print(resolve(url))
+		
 
 
 	def test_contactus_url_is_resolved(self):

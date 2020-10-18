@@ -9,6 +9,7 @@ models.cpython-38.pyc
 admin.cpython-38.pyc
 apps.cpython-38.pyc
 __init__.cpython-38.pyc
+**/*.pyc
 *.pyc
+**/.DS_STORE
 .DS_STORE
-
