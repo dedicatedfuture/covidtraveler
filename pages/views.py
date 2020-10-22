@@ -8,6 +8,11 @@ from PIL import Image
 from matplotlib.patches import Shadow
 from django.db import connection
 
+from django.http import HttpResponse
+from . models import UsZipFipsV2
+from .forms import ZipCodeForm
+from .forms import ContactUsForm
+import feedparser
 
 # Create your views here.
 def index(request):
@@ -30,7 +35,18 @@ def index(request):
 
 
 def contactus(request):
-	return render(request, 'pages/contactus.html')
+
+	if request.method == 'POST':
+		form = ContactUsForm(request.POST)
+		if form.is_valid():
+			name = form.cleaned_data['name']
+			email = form.cleaned_data['email']
+			print(name, email)
+			form.save()
+
+
+	form = ContactUsForm()
+	return render(request, 'pages/contactus.html', {'form':form})
 
 def news(request):
 	url = 'https://tools.cdc.gov/api/v2/resources/media/403372.rss'

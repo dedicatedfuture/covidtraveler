@@ -7,4 +7,14 @@
 			<li><a href="mailto:arsipansheria@gmail.com">Arsi Pansheria</a></li>
 			<li><a href="mailto:tomshannon58@gmail.com">Tom Shannon</a></li>
 		</ul>
+
+		<br><br>
+
+		<form action="" method="post" class="forms">
+			{%csrf_token%}
+			{{ form }}
+			<br>
+			<br>
+			<input type="submit">
+		</form>
 {% endblock content %}

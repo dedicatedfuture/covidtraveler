@@ -1,5 +1,7 @@
 from django.db import models
 
+
+
 class UsZipFips(models.Model):
     ziptable_id = models.AutoField(db_column='ZipTable_id', unique=True,primary_key=True)  # Field name made lowercase.
     zip = models.CharField(max_length=255, blank=True, null=True)
@@ -31,11 +33,10 @@ class CovidFinalmasterTable(models.Model):
         managed = False
         db_table = 'covid_finalmaster_table'
 
-class StateConfirmedDeceasedTotal(models.Model):
-    province_state = models.CharField(max_length=255, blank=True, unique=True,primary_key=True)
-    confirmed_total = models.FloatField(blank=True, null=True)
-    deceased_total = models.FloatField(blank=True, null=True)
+class Feedback(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    body = models.TextField()
 
-    class Meta:
-        managed = False
-        db_table = 'vw_state_confirmed_deceased_total'
+    def __str__(self):
+        return self.name

@@ -43,6 +43,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_nose',
+]
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=covidtraveler,pages',
 ]
 
 MIDDLEWARE = [
@@ -85,23 +93,23 @@ COVIDTRAVELERAWSHOST = os.environ.get('COVIDTRAVELERAWSHOST')
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.mysql',
-#        'NAME': 'covidtraveler_db',
-#        'USER': 'django',
-#        'PASSWORD': COVIDTRAVELERDBPASSWORD,
-#        'HOST': COVIDTRAVELERAWSHOST,
-#        'PORT': '3306',
-#   }
-#}
-# restored default database to complete test suite
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'mydatabase',
-    }
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'covidtraveler_db',
+        'USER': 'django',
+        'PASSWORD': COVIDTRAVELERDBPASSWORD,
+        'HOST': COVIDTRAVELERAWSHOST,
+        'PORT': '3306',
+   }
 }
+# restored default database to complete test suite
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': 'mydatabase',
+#    }
+#}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

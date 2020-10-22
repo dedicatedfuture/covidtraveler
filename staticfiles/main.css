@@ -1,7 +1,10 @@
 body{
 	background-color: lightblue;
 }
-
+input, textarea{
+  display:block;
+  margin: 10px;
+}
 #header ul{
   list-style-type: none;
   margin: 0;
