@@ -12,6 +12,7 @@
 			<li><a href="{% url 'index' %}">Home</a></li>
 			<li><a href="{% url 'news' %}">News</a></li>
 			<li><a href="{% url 'contactus' %}">Contact</a></li>
+			<li><a href="{% url 'search' %}">Search</a></li>			
 			<li><a href="{% url 'about' %}">About</a></li>
 			<li><a href="{% url 'us_states' %}">US States</a></li>
 		</ul>
@@ -35,7 +36,14 @@
 		<br>
 		<input type="submit">
 	</form>
-		
+	{% autoescape off %}
+
+		<p>
+			<img src="{{ graph1|safe }}"/>
+			<img src="{{ graph2|safe }}"/>
+		</p>
+
+	{% endautoescape %}	
 
 	{% endblock content %}
 

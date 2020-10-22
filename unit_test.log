@@ -1,0 +1,18 @@
+index served
+Starting unit tests test_views.py...
+tc-98a, tc-100a
+tc-98b, tc-100b
+Starting unit tests test_views.py...
+tc-113a
+tc-113b
+Starting unit tests test_views.py...
+index served
+tc-111a, tc-112a
+tc-111b, tc-112b
+Starting unit tests test_views.py...
+tc-113c, tc-115c
+tc-113d, tc-115d
+ResolverMatch(func=pages.views.about, args=(), kwargs={}, url_name=about, app_names=[], namespaces=[], route=about/)
+ResolverMatch(func=pages.views.contactus, args=(), kwargs={}, url_name=contactus, app_names=[], namespaces=[], route=contactus/)
+ResolverMatch(func=pages.views.index, args=(), kwargs={}, url_name=index, app_names=[], namespaces=[], route=)
+ResolverMatch(func=pages.views.news, args=(), kwargs={}, url_name=news, app_names=[], namespaces=[], route=news/)
