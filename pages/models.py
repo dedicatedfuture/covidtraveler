@@ -3,6 +3,7 @@ from django.db import models
 
 
 class UsZipFips(models.Model):
+    ziptable_id = models.AutoField(db_column='ZipTable_id', unique=True,primary_key=True)  # Field name made lowercase.
     zip = models.CharField(max_length=255, blank=True, null=True)
     countyname = models.CharField(db_column='CountyName', max_length=255, blank=True, null=True)  # Field name made lowercase.
     state = models.CharField(db_column='State', max_length=255, blank=True, null=True)  # Field name made lowercase.
@@ -12,19 +13,9 @@ class UsZipFips(models.Model):
         managed = False
         db_table = 'US_ZIP_FIPS'
 
-class UsZipFipsV2(models.Model):
-    zip = models.CharField(max_length=255)
-    countyname = models.CharField(db_column='CountyName', max_length=255)  # Field name made lowercase.
-    state = models.CharField(db_column='State', max_length=255)  # Field name made lowercase.
-    stcountyfips = models.CharField(db_column='STcountyFIPS', max_length=255)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'US_ZIP_FIPS_v2'
-
-
 class CovidFinalmasterTable(models.Model):
-    fips = models.FloatField(db_column='FIPS', blank=True, null=True)  # Field name made lowercase.
+    id = models.AutoField(unique=True,primary_key=True)
+    fips = models.CharField(db_column='FIPS', max_length=255, blank=True, null=True)  # Field name made lowercase.
     county = models.CharField(max_length=255, blank=True, null=True)
     province_state = models.CharField(max_length=255, blank=True, null=True)
     country_region = models.CharField(max_length=255, blank=True, null=True)

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+
+{%block content %}
+<h2>Location Search</h2>
+
+<form action="" method="post" class="forms">
+	{%csrf_token%}
+	{{ form }}
+	<br>
+	<br>
+	<input type="submit">
+</form>
+
+{% autoescape off %}
+<p>Here first2!</p>
+
+	{% for item in zips_list %}
+	<div>
+		<p>
+			Here!
+			{{ item.zip }} {{ item.state }} {{ item.countyname }} {{ item.stcountyfips }}
+			<!-- <a href="{% url 'search.html' %}">Select...</a> -->
+		</p>
+	</div>
+	{% endfor %}
+
+{% endautoescape %}
+
+
+
+{% endblock content %}
