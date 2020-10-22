@@ -24,6 +24,12 @@
 
 	<form action="" method="post" class="forms">
 		{%csrf_token%}
+		<select>
+			<option disabled="true" selected>Select State</option>
+			{% for results in UsZipFips  %}
+				<option>{{ results.state }}</option>
+			{% endfor %}
+		</select><br>
 		{{ form }}
 		<br>
 		<br>

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from . models import UsZipFipsV2
+from .models import UsZipFips
 from .forms import ZipCodeForm
 from .forms import ContactUsForm
 import feedparser
@@ -18,6 +18,12 @@ def index(request):
 		context = {'zip_code': zip_code}
 		#TO_DO send zip_code to model
 	return render(request, 'base.html', context)
+
+def showStates(request):
+	#states=UsZipsFips.zip.objects.all()
+	states=["PA", "NJ", "MD", "DE"]
+	print("showStates Served")
+	return render(request, "ShowStates.html", {"showStates": states})
 
 
 def contactus(request):
@@ -47,11 +53,11 @@ def about(request):
 #def us_states(request, pagename):
 def us_states(request):
 	context = {
-		'state': UsZipFipsV2.state,
-		'county': UsZipFipsV2.countyname,
-		'state': UsZipFipsV2.state,
-		'fips': UsZipFipsV2.stcountyfips,
-		'fips_list': UsZipFipsV2.objects.all()[0:15],
+		'state': UsZipFips.state,
+		'county': UsZipFips.countyname,
+		'state': UsZipFips.state,
+		'fips': UsZipFips.stcountyfips,
+		'fips_list': UsZipFips.objects.all()[0:15],
 	}
 	#print(context)
 	#assert False

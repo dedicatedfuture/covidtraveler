@@ -12,6 +12,7 @@ class UsZipFips(models.Model):
         managed = False
         db_table = 'US_ZIP_FIPS'
 
+
 class UsZipFipsV2(models.Model):
     zip = models.CharField(max_length=255)
     countyname = models.CharField(db_column='CountyName', max_length=255)  # Field name made lowercase.
@@ -47,5 +48,3 @@ class Feedback(models.Model):
     email = models.EmailField()
     body = models.TextField()
 
-    def __str__(self):
-        return self.name
