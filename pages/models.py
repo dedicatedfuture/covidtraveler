@@ -13,21 +13,6 @@ class UsZipFips(models.Model):
         managed = False
         db_table = 'US_ZIP_FIPS'
 
-<<<<<<< HEAD
-
-class UsZipFipsV2(models.Model):
-    zip = models.CharField(max_length=255)
-    countyname = models.CharField(db_column='CountyName', max_length=255)  # Field name made lowercase.
-    state = models.CharField(db_column='State', max_length=255)  # Field name made lowercase.
-    stcountyfips = models.CharField(db_column='STcountyFIPS', max_length=255)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'US_ZIP_FIPS_v2'
-
-
-=======
->>>>>>> a3601dd51bbba4ffb8522da0f4bd995fc8c0c207
 class CovidFinalmasterTable(models.Model):
     id = models.AutoField(unique=True,primary_key=True)
     fips = models.CharField(db_column='FIPS', max_length=255, blank=True, null=True)  # Field name made lowercase.
