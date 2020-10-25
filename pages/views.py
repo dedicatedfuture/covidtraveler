@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest
-from . models import UsZipFips
+from . models import UsZipFips, CovidFinalmasterTable
 from . forms import ZipCodeForm
 import feedparser, matplotlib.pyplot as plt, base64
 from io import StringIO, BytesIO
@@ -9,8 +9,6 @@ from matplotlib.patches import Shadow
 from django.db import connection
 
 from django.http import HttpResponse
-from . models import UsZipFipsV2
-from .forms import ZipCodeForm
 from .forms import ContactUsForm
 import feedparser
 
@@ -26,10 +24,10 @@ def index(request):
 		# 	'zips_list': UsZipFips.objects.filter(zip=request.POST.get("zipCode")).values(),
 		# }
 		img2=img1="data:image/jpg;base64,"
-		img1+=generatePieGraphic2(request)
+		img1+=generatePieGraphic(request)
 		img2+=generateStackPlot(request)
 		context = {'graph1': img1, 'graph2': img2, 'county1': '-- Montgomery --','county2': '-- Delaware --'}
-		print("context=", context)	
+		#print("context=", context)	
 
 	return render(request, 'base.html', context)
 
@@ -77,74 +75,47 @@ def search(request):
 		}	
 	return render(request, 'pages/search.html', context)
 
-def generatePieGraphic1(request):
+def generatePieGraphic(request):
 	# Pie chart, where the slices will be ordered and plotted counter-clockwise:
 	# make a square figure and axes
 
-	#First, retrieve data
-	#retrieveDBdata(request) ## has an issue 
-	fig = plt.figure(figsize=(4, 4))
-	ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+	sql = """SELECT uzf.zip AS ZIP, uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
+		SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased 
+		FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS)) 
+		WHERE uzf.zip = %s 
+		GROUP BY uzf.zip , uzf.STcountyFIPS , cft.county , cft.province_state """
+	request_data = retrieveDBdata(request,sql) ## has an issue
+	#print("B-request_data=",request_data)
 
-	labels = 'Cases', 'Deceased'
-	case = 100*(12945-890)/12945
-	deceased = 100*(890/12945)
-	fracs = [case, deceased]
+	# can only generate graph if data available
+	if len(request_data) > 0:
+		labels = 'Cases', 'Deceased'
+		for i in range(len(request_data)):
+			print ("request_data=",request_data[i])
+		county = request_data[0]['County']
+		print ("county=",county)
 
-	#explode = (12945, 890, 12285, 762)
-	explode = (0, 0.1)
+		#  case = 100*(Cases-Deceased)/Cases
+		case = 100*(int(request_data[0]['Cases'])-int(request_data[0]['Deceased']))/int(request_data[0]['Cases'])
+		
+		#  deceased = 100*(Deceased/Cases)
+		deceased = 100*(int(request_data[0]['Deceased'])/int(request_data[0]['Cases']))
+		sizes = [case, deceased]
+		explode = (0, 0.1)
+		
+		plt.ioff()
+		fig1, ax1 = plt.subplots()
+		ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+				shadow=True, startangle=90)
+		ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+		ax1.legend(loc='upper left')
+		ax1.set_title(str(request_data[0]['County']) + " County, " + str(request_data[0]['State']) + " - Ratio of Confirmed to Deceased")
 
-	# We want to draw the shadow for each pie but we will not use "shadow"
-	# option as it does'n save the references to the shadow patches.
-	pies = ax.pie(fracs, explode=explode, labels=labels, autopct='%1.1f%%')
-
-	for w in pies[0]:
-		# set the id with the label.
-		w.set_gid(w.get_label())
-
-		# we don't want to draw the edge of the pie
-		w.set_edgecolor("none")
-
-	for w in pies[0]:
-		# create shadow patch
-		s = Shadow(w, -0.01, -0.01)
-		s.set_gid(w.get_gid() + "_shadow")
-		s.set_zorder(w.get_zorder() - 0.1)
-		ax.add_patch(s)
-
-	# save and return
-	from io import BytesIO
-	buf = BytesIO()
-	plt.savefig(buf, format="jpg")
-	#buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
-	buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
-	return buf_base64
-
-def generatePieGraphic2(request):
-	# Pie chart, where the slices will be ordered and plotted counter-clockwise:
-	# make a square figure and axes
-	req_dict = retrieveDBdata(request) ## has an issue
-	labels = 'Cases', 'Deceased'
-	case = 100*(12945-890)/12945
-	deceased = 100*(890/12945)
-	sizes = [case, deceased]
-
-	#explode = (12945, 890, 12285, 762)
-	explode = (0, 0.1)
-
-	fig1, ax1 = plt.subplots()
-	ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
-			shadow=True, startangle=90)
-	ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-	ax1.legend(loc='upper left')
-	ax1.set_title('Montgomery County - Ratio of Confirmed:Deceased')
-
-	#plt.show()
-	# save and return
-	from io import BytesIO
-	buf = BytesIO()
-	plt.savefig(buf, format="jpg")
-	buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+		# save and return
+		from io import BytesIO
+		buf = BytesIO()
+		plt.savefig(buf, format="jpg")
+		buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
 	return buf_base64
 
 def generateStackPlot(request):
@@ -152,54 +123,98 @@ def generateStackPlot(request):
 	# make a square figure and axes
 
 	#First, retrieve data
-	#retrieveDBdata(request) ## has an issue 
-	months = ['May', 'June', 'July', 'August','September','October']
-	confirmed = [4307, 7061, 8448, 9761, 11035, 12285]
-	deceased = [351, 684, 801, 848, 861, 878]
-	# year = [1950, 1960, 1970, 1980, 1990, 2000, 2010, 2018]
-	population = {
-		'Cases': [4307, 7061, 8448, 9761, 11035, 12285],
-		'Deceased': [351, 684, 801, 848, 861, 878],
-	}
+	sql = """SELECT monthname(cft.last_update) as Month_part, STcountyFIPS as FIPS, cft.county,  cft.province_state as state, cft.confirmed as Cases, cft.deaths as Deceased
+		FROM covidtraveler_db.covid_finalmaster_table cft inner join covidtraveler_db.US_ZIP_FIPS uzf
+		on cft.FIPS = uzf.STcountyFIPS
+		where dayofmonth(cft.last_update)=1
+		and uzf.zip = %s
+		order by STcountyFIPS, cft.last_update; """
 
+	request_data = retrieveDBdata(request,sql)  
+
+	# get unique list of months returned from query 
+	#month_part = [d['Month_part'] for d in request_data if 'Month_part' in d]
+	months = [d['Month_part'] for d in request_data if 'Month_part' in d]
+	print("1-months=",months)
+	# reduce list of month_part values to unique set (becomes a dictionary)
+	months=set(months)
+	# print("2-months=",months)
+	# convert the dictionary back to a list structure
+	months=list(months)
+	print("3-months=",months)
+	
+	# get unique set of FIPS - will be used to filter data for each graph
+	FIPS = [d['FIPS'] for d in request_data if 'FIPS' in d]
+	# reduce list of FIPS values to unique set (becomes a dictionary)
+	FIPS=set(FIPS)
+	# convert the dictionary back to a list structure
+	FIPS=list(FIPS)
+	for i in FIPS:
+		print("FIPS=",i)
+	
+	# start new row list that will contain only the FIPS to be graphed - this currently constrains to the first FIPS found, but the next revision will produce all
+	row_list=list()
+	for item in request_data:
+		if item['FIPS'] == FIPS[0]:
+			row_list.append(item)
+	cases = [d['Cases'] for d in row_list if 'Cases' in d]
+	deceased = [d['Deceased'] for d in row_list if 'Deceased' in d]
+
+	# get unique name of county - will be used in display literals
+	county = [d['county'] for d in row_list if 'county' in d]
+	# reduce list of FIPS values to unique set (becomes a dictionary)
+	county=set(county)
+	# convert the dictionary back to a list structure
+	county=list(county)
+
+	# get unique name of state - will be used in display literals
+	state = [d['state'] for d in row_list if 'state' in d]
+	# reduce list of FIPS values to unique set (becomes a dictionary)
+	state=set(state)
+	# convert the dictionary back to a list structure
+	state=list(state)
+
+	population = {
+		'Cases': cases,
+		'Deceased': deceased,
+	}
+	plt.ioff()
 	fig, ax = plt.subplots()
 	ax.stackplot(months, population.values(),
 				labels=population.keys())
 	ax.legend(loc='upper left')
-	ax.set_title('Montgomery County - Monthly Change')
+	ax.set_title(county[0] + ' County, '+ state[0] + ' - FIPS ' + FIPS[0] + ' - Monthly Growth')
 	ax.set_xlabel('Month')
-	ax.set_ylabel('People Affected')
+	ax.set_ylabel('Population Affected')
 	# save and return
 	from io import BytesIO
 	buf = BytesIO()
 	plt.savefig(buf, format="jpg")
-	#buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
 	buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
 	return buf_base64
 
-def dictFetchAll(cursor):
-    "Return all rows from a cursor as a dict"
-    columns = [col[0] for col in cursor.description]
-    return [
-        dict(zip(columns, row))
-        for row in cursor.fetchall()
-    ]
-
-def retrieveDBdata(request):
+def retrieveDBdata(request,sql):
 	"""
 	Uses request.POST.get("zipCode")).values() to get value of zip code to use as param for query 
 	"""
 	from django.db import connection
-	sql = "SELECT uzf.zip AS zip, uzf.STcountyFIPS AS FIPS, cft.county AS county, cft.province_state AS state, "
-	sql+= " SUM(cft.daily_confirmed_case) AS total_confirmed_cases, SUM(cft.daily_deaths_case) AS total_deceased "
-	sql+= "FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS)))"
-	sql+= "WHERE uzf.zip = %s "
-	sql+= "GROUP BY uzf.zip , uzf.STcountyFIPS , cft.county , cft.province_state"
-	print("sql=",sql)
 	data = request.POST.get("zipCode")
 	
 	with connection.cursor() as cursor:
-		#cursor.execute(sql, data)
-		cursor.execute("SELECT uzf.zip AS zip, uzf.STcountyFIPS AS FIPS, cft.county AS county, cft.province_state AS state, SUM(cft.daily_confirmed_case) AS Total_confirmed_cases, SUM(cft.daily_deaths_case) AS total_deceased FROM (covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS))) WHERE uzf.zip = %s GROUP BY uzf.zip , uzf.STcountyFIPS , cft.county , cft.province_state",[data])
-	return dictFetchAll(cursor)
+		cursor.execute(sql, [data])
+	return  dictFetchRows(cursor)
 
+def dictFetchRows(cursor):
+	"Return all rows from a cursor as a list of dictionaries"
+	columns = [col[0] for col in cursor.description]
+	print ("columns=",columns,"rows=",cursor.rowcount)
+	result_list=list()
+	rowcnt=0 	
+	for row in cursor:
+		res=dict()
+		for i in range(len(columns)):
+			key=columns[i]
+			res[key] = row[i] 
+		result_list.append(res)
+	#print ("result_list=",result_list)
+	return result_list
