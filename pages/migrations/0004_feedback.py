@@ -6,9 +6,9 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pages', '0003_uszipfipsv2'),
+        ('pages', '0002_stateconfirmeddeceasedtotal'),
     ]
-
+	
     operations = [
         migrations.CreateModel(
             name='Feedback',
