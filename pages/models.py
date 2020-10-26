@@ -8,7 +8,7 @@ class UsZipFips(models.Model):
     countyname = models.CharField(db_column='CountyName', max_length=255, blank=True, null=True)  # Field name made lowercase.
     state = models.CharField(db_column='State', max_length=255, blank=True, null=True)  # Field name made lowercase.
     stcountyfips = models.CharField(db_column='STcountyFIPS', max_length=255, blank=True, null=True)  # Field name made lowercase.
-
+ 
     class Meta:
         managed = False
         db_table = 'US_ZIP_FIPS'
@@ -28,10 +28,13 @@ class CovidFinalmasterTable(models.Model):
     active_case = models.FloatField(blank=True, null=True)
     daily_confirmed_case = models.FloatField(blank=True, null=True)
     daily_deaths_case = models.FloatField(blank=True, null=True)
-
+ 
     class Meta:
         managed = False
         db_table = 'covid_finalmaster_table'
+    
+    def __str__(self):
+        return self.fips
 
 class Feedback(models.Model):
     name = models.CharField(max_length=100)

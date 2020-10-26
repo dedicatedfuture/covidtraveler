@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('pages', '0002_stateconfirmeddeceasedtotal'),
     ]
-
+	
     operations = [
         migrations.CreateModel(
             name='Feedback',
