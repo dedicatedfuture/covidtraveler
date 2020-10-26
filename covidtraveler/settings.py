@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get('COVIDTRAVELERSECRETKEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['calm-spire-40582.herokuapp.com', '127.0.0.1']
 
@@ -98,10 +98,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'covidtraveler_db',
-        #'USER': 'django',
-        'USER': 'dbmasteruser',
-        #'PASSWORD': COVIDTRAVELERDBPASSWORD,
-        'PASSWORD': 'C(eM7C$<3qk6ast:Ee88y)UF:[2(CNiF',
+        'USER': 'django',
+        #'USER': 'dbmasteruser',
+        'PASSWORD': COVIDTRAVELERDBPASSWORD,
+        #'PASSWORD': 'C(eM7C$<3qk6ast:Ee88y)UF:[2(CNiF',
         'HOST': COVIDTRAVELERAWSHOST,
         'PORT': '3306',
    }
