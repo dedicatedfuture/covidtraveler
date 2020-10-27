@@ -15,8 +15,10 @@ input, textarea {
   background-color: white;
   padding: 20px; 
   display: flex;
-  position: relative;
+  position: fixed;
+  width: 100%;
   top: 0;
+
 }
 .menu-master{
   flex-direction: row;
@@ -105,10 +107,51 @@ input, textarea {
 }
 
 /* Base About Template*/
-
+.about{
+  padding-top: 200px;
+}
 /* Base Contact Us Template*/
 
 /* Base News Template*/
+.news-header{
+  text-align: center;
+  padding-top: 100px;
+  font-size: 3.5em;
+  font-family: Harmonia Sans Pro,sans-serif;
+  margin: 0;
+}
+.news-header2{
+  text-align: center;
+  font-size: 2em;
+  margin-top: 0;
+}
+.rows{
+  padding: 30px 0px 30px 70px;
+  font-size: 1.5em;
+}
+.rows a{
+  text-decoration: none;
+  display: inline-block;
+  transition: all .2s ease-in-out; 
+}
+.row1{
+  background-color: #F1F6F9;
+}
+.row1 a {
+  color: black;
+}
+.row2{
+   background-color: #394867;
+   color: white;
+}
+.row2 a {
+  color: white;
+  
+}
+.rows a:hover {
+  color: #6cb644;
+  transform: scale(1.2);
+}
 
 /* Media Queries*/
 @media screen and (max-width: 1200px){

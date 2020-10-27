@@ -56,6 +56,11 @@ def contactus(request):
 def news(request):
 	url = 'https://tools.cdc.gov/api/v2/resources/media/403372.rss'
 	feed = feedparser.parse(url)
+	for item in feed.entries:
+		item.published = item.published[0:16]
+		print(item.published[0:16])
+		print(type(item))
+	
 	return render(request, 'pages/newsarticles.html', {
 		'feed':feed
 		})
