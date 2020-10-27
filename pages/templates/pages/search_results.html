@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+<link href="{% static '/css/main.css' %}" rel="stylesheet" type="text/css">
+
+{%block content %}
+	{% autoescape off %}
+	<div class="results-outer">
+		<div class="results">
+			
+
+			<table align="center" width="100%" cellpadding="0" cellspacing="0" border="0" class="fullWidth mainTable" style="background-color: #ffffff">
+				<tr>
+						<td align="left" style="vertical-align:top;">
+							<table width="100%" align="left" cellpadding="0" cellspacing="0" border="0">
+								<tr>
+									<td align="left" style="vertical-align: top;"><table width="600" align="left" cellpadding="0" cellspacing="0" border="0" class="fullWidth">
+										<tr>
+											<td align="center" style="vertical-align:top; padding:12px; font-family: Arial,Helvetica, sans-serif; font-size:18px; color: #000000;"> <img src="{{ graph1|safe }}"/>
+
+											</td>
+										</tr>
+									</table>
+									
+									<table width="600" align="left" cellpadding="0" cellspacing="0" border="0" class="fullWidth">
+										<tr>
+											<td align="center" style="vertical-align:top; padding:12px; font-family: Arial, Helvetica, sans-serif; font-size:18px; color:#000000;"> <table>
+							<tr>
+								<td style="text-align: center"><img src="{% static 'images/maskRedhead.jpg' %}" class="tableImages" ></td>
+							</tr>
+							<tr>
+								<td class="table-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis a ornare odio, quis faucibus eros. Nulla mattis leo non tellus tempus condimentum. Sed et felis mattis, dictum neque vitae, aliquam nunc. Phasellus a congue felis. Nunc malesuada, nunc sit amet efficitur finibus, mi nulla luctus ex, ut mattis eros augue gravida nisl. Sed fringilla dolor nibh, in semper augue malesuada eu. Nulla elementum blandit elit, a mattis arcu laoreet sed. Duis mi neque, iaculis ut ligula eget, dapibus dignissim turpis. Suspendisse maximus, mauris quis aliquet placerat, lectus tortor aliquam arcu, vel dignissim felis risus a tellus. Nullam at finibus massa, vel posuere dui. Suspendisse laoreet laoreet nulla, in interdum dui ullamcorper et. In rutrum urna non lacus fringilla, non porta massa consequat. Vivamus eu elementum sapien. Aenean auctor lacus nec sagittis efficitur. Aenean et ante in massa cursus imperdiet. Proin vitae sem quis arcu fringilla aliquet id vel ex.</td>
+							</tr>
+						</table></td>
+										</tr>
+									</table></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td align="left" style="vertical-align:top;">
+							<table width="100%" align="left" cellpadding="0" cellspacing="0" border="0">
+								<tr>
+									<td align="left" style="vertical-align: top;"><table width="600" align="left" cellpadding="0" cellspacing="0" border="0" class="fullWidth">
+										<tr>
+											<td align="center" style="vertical-align:top; padding:12px; font-family: Arial,Helvetica, sans-serif; font-size:18px; color: #000000;"><table>
+							<tr>
+								<td style="text-align: center"><img src="{% static 'images/washhands.jpg' %}" class="tableImages"></td>
+							</tr>
+							<tr>
+								<td class="table-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis a ornare odio, quis faucibus eros. Nulla mattis leo non tellus tempus condimentum. Sed et felis mattis, dictum neque vitae, aliquam nunc. Phasellus a congue felis. Nunc malesuada, nunc sit amet efficitur finibus, mi nulla luctus ex, ut mattis eros augue gravida nisl. Sed fringilla dolor nibh, in semper augue malesuada eu. Nulla elementum blandit elit, a mattis arcu laoreet sed. Duis mi neque, iaculis ut ligula eget, dapibus dignissim turpis. Suspendisse maximus, mauris quis aliquet placerat, lectus tortor aliquam arcu, vel dignissim felis risus a tellus. Nullam at finibus massa, vel posuere dui. Suspendisse laoreet laoreet nulla, in interdum dui ullamcorper et. In rutrum urna non lacus fringilla, non porta massa consequat. Vivamus eu elementum sapien. Aenean auctor lacus nec sagittis efficitur. Aenean et ante in massa cursus imperdiet. Proin vitae sem quis arcu fringilla aliquet id vel ex.</td>
+							</tr>
+						</table>
+
+											</td>
+										</tr>
+									</table>
+								
+									<table width="600" align="left" cellpadding="0" cellspacing="0" border="0" class="fullWidth">
+										<tr>
+											<td align="center" style="vertical-align:top; padding:12px; font-family: Arial, Helvetica, sans-serif; font-size:18px; color:#000000;"> <img src="{{ graph2|safe }}"/></td>
+										</tr>
+									</table></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+
+			</table>
+			
+	
+		</div>
+	</div>
+	{% endautoescape %}	
+
+{% endblock content %}

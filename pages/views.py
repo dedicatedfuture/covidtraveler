@@ -29,6 +29,7 @@ def index(request):
 		img1+=generatePieGraphic(request)
 		img2+=generateStackPlot(request)
 		context = {'graph1': img1, 'graph2': img2, 'county1': '-- Montgomery --','county2': '-- Delaware --'}
+		return render(request, "pages/search_results.html", context)
 		#print("context=", context)	
 
 	return render(request, 'base.html', context)
@@ -80,6 +81,9 @@ def search(request):
 		'zips_list': UsZipFips.objects.filter(zip=request.POST.get("zipCode")).values(),
 		}	
 	return render(request, 'pages/search.html', context)
+
+def search_results(request):
+	return render(request, "pages/search_results.html")
 
 def generatePieGraphic(request):
 	# Pie chart, where the slices will be ordered and plotted counter-clockwise:

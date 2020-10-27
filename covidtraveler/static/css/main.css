@@ -50,7 +50,7 @@ input, textarea {
   background-position: top;
   background-attachment: fixed;
   width: 100%;
-  height: 1000px;
+  height: 800px;
 }
 .main-div-inner{
   justify-content: space-between;
@@ -82,10 +82,48 @@ input, textarea {
   padding: 30px;
 }
 
+/* Base Results Template*/
+.results-outer{
+  display:flex;
+  justify-content: center;
+}
+.results{
+  margin: 30px auto;
+}
+
+.tableImages{
+  width: 350px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.table-text{
+  padding: 10px;
+}
+.mainTable{
+  margin: 0px auto;
+}
+
 /* Base About Template*/
 
 /* Base Contact Us Template*/
 
 /* Base News Template*/
 
+/* Media Queries*/
+@media screen and (max-width: 1200px){
+  .fullWidth{
+    width: 100% !important;
+    min-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0px !important;
+    text-align: center !important;
+  }
+  /*class for hero images*/
+  .hero{
+    width: 100% !important;
+    height: auto !important;
+  }
+}
 

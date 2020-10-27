@@ -99,9 +99,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'covidtraveler_db',
         'USER': 'django',
-        #'USER': 'dbmasteruser',
         'PASSWORD': COVIDTRAVELERDBPASSWORD,
-        #'PASSWORD': 'C(eM7C$<3qk6ast:Ee88y)UF:[2(CNiF',
         'HOST': COVIDTRAVELERAWSHOST,
         'PORT': '3306',
    }
