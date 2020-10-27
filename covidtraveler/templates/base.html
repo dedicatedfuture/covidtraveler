@@ -4,40 +4,44 @@
 <head>
 	<meta charset="utf-8">
 	<title>Covid Traveler Warning</title>
-	<link href="{% static 'main.css' %}" rel="stylesheet" type="text/css">
+	<link href="{% static '/css/main.css' %}" rel="stylesheet" type="text/css">
 </head>
 <body>
 	<header id="header">
-		<ul>
-			<li><a href="{% url 'index' %}">Home</a></li>
-			<li><a href="{% url 'news' %}">News</a></li>
-			<li><a href="{% url 'contactus' %}">Contact</a></li>
-			<li><a href="{% url 'search' %}">Search</a></li>			
-			<li><a href="{% url 'about' %}">About</a></li>
-			<li><a href="{% url 'us_states' %}">US States</a></li>
-		</ul>
+		<div class="site-header">
+			<nav class="menu-master">
+				<a href="{% url 'index' %}">Home</a>
+				<a href="{% url 'news' %}">News</a>
+				<a href="{% url 'contactus' %}">Contact</a>
+				<a href="{% url 'search' %}">Search</a>			
+				<a href="{% url 'about' %}">About</a>
+				<a href="{% url 'us_states' %}">US States</a>
+			</nav>
+		</div>
 	</header>
 
 	{% block content %}
+	<div class="main-div-outer" style="background-image: url('{% static '/images/coronavirus.jpeg' %}')";>
+		
+		<div class="main-div-inner">
 
-	<h1 class="headings">Welcome to COVID Traveler Warning</h1>
-	<h2 class="headings">Where would you like to travel?</h2>
+			<h1 class="headings">Welcome to COVID Traveler Warning</h1>
+				<h2 class="headings">What US County would you like data on?</h2>
 
-	<form action="" method="post" class="forms">
-		{%csrf_token%}
-		{{ form }}
-		<br>
-		<br>
-		<input type="submit">
-	</form>
-	{% autoescape off %}
+				<form action="" method="post" class="forms">
+					{%csrf_token%}
+					
+					{{ form }}
+					<br>
+					<br>
+					<input type="submit">
+				</form>
+			<div class="main-div-inner-inner">
+				
+			</div>
+		</div>
+	</div>	
 
-		<p>
-			<img src="{{ graph1|safe }}"/>
-			<img src="{{ graph2|safe }}"/>
-		</p>
-
-	{% endautoescape %}	
 
 	{% endblock content %}
 

@@ -1,3 +1,4 @@
+#pragma: no cover
 """
 Django settings for covidtraveler project.
 
@@ -27,7 +28,7 @@ SECRET_KEY = os.environ.get('COVIDTRAVELERSECRETKEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['calm-spire-40582.herokuapp.com', '127.0.0.1']
 
@@ -149,6 +150,8 @@ USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
+
+MEDIA_URL = '/images/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'covidtraveler/static'),

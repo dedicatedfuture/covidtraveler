@@ -41,5 +41,7 @@ class Feedback(models.Model):
     email = models.EmailField()
     body = models.TextField()
 
-    def __str__(self):
-        return self.name
+    class Meta:
+        managed = False
+        db_table = 'user_feedback'
+

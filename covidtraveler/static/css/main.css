@@ -1,0 +1,129 @@
+/* Base HTML Template*/
+{% load static %}
+body{
+	background-color: white;
+  margin: 0;
+  font-family: Harmonia Sans Pro,sans-serif;
+}
+input, textarea {
+  display:block;
+  margin: 10px;
+}
+#header{
+  border-bottom: 5px solid #6cb644;
+  margin: 0 auto;
+  background-color: white;
+  padding: 20px; 
+  display: flex;
+  position: relative;
+  top: 0;
+}
+.menu-master{
+  flex-direction: row;
+}
+.site-header{
+  display: block;
+  margin: 0 auto;
+}
+
+#header a{ 
+  color: black;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: Harmonia Sans Pro,sans-serif;
+  margin-right: 40px;
+}
+
+#header a:hover {
+  color: #6cb644;
+}
+
+.headings {
+  padding: 0 0 0 30px;
+}
+
+.main-div-outer{
+  margin: auto;
+  display: flex;
+  background-repeat: no-repeat;
+  background-position: top;
+  background-attachment: fixed;
+  width: 100%;
+  height: 800px;
+}
+.main-div-inner{
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+  margin: 150px auto 0 auto;
+  position: relative;
+  top: 4em;
+  color: white;
+  text-shadow:
+   -2px -2px 0 #000,  
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+     2px 2px 0 #000;
+  
+}
+.main-div-inner-inner{
+  
+   
+}
+
+
+
+.forms{
+  padding: 0 0 0 30px;
+}
+
+.footer {
+  padding: 30px;
+}
+
+/* Base Results Template*/
+.results-outer{
+  display:flex;
+  justify-content: center;
+}
+.results{
+  margin: 30px auto;
+}
+
+.tableImages{
+  width: 350px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.table-text{
+  padding: 10px;
+}
+.mainTable{
+  margin: 0px auto;
+}
+
+/* Base About Template*/
+
+/* Base Contact Us Template*/
+
+/* Base News Template*/
+
+/* Media Queries*/
+@media screen and (max-width: 1200px){
+  .fullWidth{
+    width: 100% !important;
+    min-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0px !important;
+    text-align: center !important;
+  }
+  /*class for hero images*/
+  .hero{
+    width: 100% !important;
+    height: auto !important;
+  }
+}
+
