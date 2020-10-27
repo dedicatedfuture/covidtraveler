@@ -41,8 +41,6 @@ def contactus(request):
 			email = form.cleaned_data['email']
 			print(name, email)
 			form.save()
-
-
 	form = ContactUsForm()
 	return render(request, 'pages/contactus.html', {'form':form})
 
@@ -108,13 +106,13 @@ def generatePieGraphic(request):
 		ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
 				shadow=True, startangle=90)
 		ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-		ax1.legend(loc='upper left')
+		ax1.legend(loc='upper left',fancybox=True)
 		ax1.set_title(str(request_data[0]['County']) + " County, " + str(request_data[0]['State']) + " - Ratio of Confirmed to Deceased")
 
 		# save and return
 		from io import BytesIO
 		buf = BytesIO()
-		plt.savefig(buf, format="jpg")
+		plt.savefig(buf, transparent = True, format="png")
 		buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
 	return buf_base64
 
@@ -182,14 +180,16 @@ def generateStackPlot(request):
 	fig, ax = plt.subplots()
 	ax.stackplot(months, population.values(),
 				labels=population.keys())
-	ax.legend(loc='upper left')
+	ax.legend(loc='upper left',fancybox=True)
 	ax.set_title(county[0] + ' County, '+ state[0] + ' - FIPS ' + FIPS[0] + ' - Monthly Growth')
 	ax.set_xlabel('Month')
 	ax.set_ylabel('Population Affected')
+	ax.facecolor = 'inherit'
 	# save and return
 	from io import BytesIO
 	buf = BytesIO()
-	plt.savefig(buf, format="jpg")
+	#plt.savefig(buf, transparent=True, format="jpg")
+	plt.savefig(buf, transparent=True, format="png")
 	buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
 	return buf_base64
 
