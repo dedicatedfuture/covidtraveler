@@ -4,6 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>Covid Traveler Warning</title>
+	<link href="{% static '/css/normalize.css' %}" rel="stylesheet" type="text/css">
 	<link href="{% static '/css/main.css' %}" rel="stylesheet" type="text/css">
 </head>
 <body>
@@ -21,7 +22,7 @@
 	</header>
 
 	{% block content %}
-	<div class="main-div-outer" style="background-image: url('{% static '/images/coronavirus.jpeg' %}')";>
+	<div class="main-div-outer" style="background-image: url('{% static '/images/usMap.jpg' %}')";>
 		
 		<div class="main-div-inner">
 
@@ -47,7 +48,8 @@
 
 	<footer>
 		<div class="footer">
-			&reg; Penn State Great Valley
+			<a href="https://greatvalley.psu.edu/" target="_blank"><div class="footer-boxes box1" ><img src="{% static '/images/pennState.png' %}"></div> </a>
+			
 		</div>
 	</footer>
 	
