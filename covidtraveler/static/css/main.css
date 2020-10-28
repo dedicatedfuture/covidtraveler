@@ -1,7 +1,7 @@
 /* Base HTML Template*/
 {% load static %}
 body{
-	background-color: white;
+	background-color: #118ab2;
   margin: 0;
   font-family: Harmonia Sans Pro,sans-serif;
 }
@@ -10,7 +10,7 @@ input, textarea {
   margin: 10px;
 }
 #header{
-  border-bottom: 5px solid #6cb644;
+  border-bottom: 5px solid #06d6a0;
   margin: 0 auto;
   background-color: white;
   padding: 20px; 
@@ -18,6 +18,7 @@ input, textarea {
   position: fixed;
   width: 100%;
   top: 0;
+  z-index: 3;
 
 }
 .menu-master{
@@ -38,7 +39,7 @@ input, textarea {
 }
 
 #header a:hover {
-  color: #6cb644;
+  color: #06d6a0;
 }
 
 .headings {
@@ -51,7 +52,8 @@ input, textarea {
   background-repeat: no-repeat;
   background-position: top;
   background-attachment: fixed;
-  width: 100%;
+  background-size: contain;
+  width: 60%;
   height: 800px;
 }
 .main-div-inner{
@@ -78,10 +80,50 @@ input, textarea {
 
 .forms{
   padding: 0 0 0 30px;
+
+}
+label[for=id_zipCode]{
+  font-size: 28px;
+}
+
+input[type=text], input[type=email], textarea  {
+  border: 2px solid #06d6a0;
+  border-radius: 4px;
+  width: 50%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  color: black;
+}
+input[type="submit"]{
+  background-color: #06d6a0;
+  border: none;
+  color: #073b4c;
+  padding: 16px 62px;
+  text-decoration: none;
+  font-size: 24px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px;
+  font-weight: bold;
 }
 
 .footer {
-  padding: 30px;
+
+  display: flex;
+  height: 200px;
+  background-color: #073B4C;
+}
+.footer-boxes{
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  vertical-align: middle;
+  text-align: center;
+
+}
+.box1{
+
 }
 
 /* Base Results Template*/
@@ -91,6 +133,7 @@ input, textarea {
 }
 .results{
   margin: 30px auto;
+  padding: 20px;
 }
 
 .tableImages{
@@ -119,11 +162,13 @@ input, textarea {
   font-size: 3.5em;
   font-family: Harmonia Sans Pro,sans-serif;
   margin: 0;
+  color: #ffd166;
 }
 .news-header2{
   text-align: center;
   font-size: 2em;
   margin-top: 0;
+  color: #ffd166;
 }
 .rows{
   padding: 30px 0px 30px 70px;
@@ -149,7 +194,7 @@ input, textarea {
   
 }
 .rows a:hover {
-  color: #6cb644;
+  color: #06d6a0;
   transform: scale(1.2);
 }
 
@@ -167,6 +212,14 @@ input, textarea {
   .hero{
     width: 100% !important;
     height: auto !important;
+  }
+  .footer{
+    flex-direction: column;
+    height: auto;
+  }
+  .footer-boxes{
+    width: 100%;
+    min-height: 200px;
   }
 }
 
