@@ -68,25 +68,6 @@ def news(request):
 def about(request):
 	return render(request, 'pages/about.html')
 
-def us_states(request):
-	context = {
-		'state': UsZipFips.state,
-		'county': UsZipFips.countyname,
-		'state': UsZipFips.state,
-		'fips': UsZipFips.stcountyfips,
-		'fips_list': UsZipFips.objects.all()[0:15],
-	}
-	return render(request, 'pages/us_states.html', context)
-
-def search(request):
-	form = ZipCodeForm()
-	context={'form': form}
-	if request.method == 'POST':
-		context = {
-		'zips_list': UsZipFips.objects.filter(zip=request.POST.get("zipCode")).values(),
-		}	
-	return render(request, 'pages/search.html', context)
-
 def search_results(request):
 	return render(request, "pages/search_results.html")
 
