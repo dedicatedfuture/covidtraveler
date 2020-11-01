@@ -107,6 +107,9 @@ input[type="submit"]{
   border-radius: 10px;
   font-weight: bold;
 }
+#id_stateChoice{
+  color: black;
+}
 
 .footer {
 
@@ -130,10 +133,14 @@ input[type="submit"]{
 .results-outer{
   display:flex;
   justify-content: center;
+  background-color: #ffd166;
 }
 .results{
   margin: 30px auto;
   padding: 20px;
+}
+.mainTable{
+  background-color: #ffd166;
 }
 
 .tableImages{
@@ -150,9 +157,11 @@ input[type="submit"]{
 }
 
 /* Base About Template*/
-.about{
-  padding-top: 200px;
+.aboutOuter{
+  padding: 150px 30px 30px 30px;
+  background-color: #ffd166;
 }
+
 /* Base Contact Us Template*/
 
 /* Base News Template*/
