@@ -13,6 +13,7 @@ class TestViews(TestCase):
 		self.contactus = reverse('contactus')
 		self.news = reverse('news')
 		self.about = reverse('about')
+		self.us_states = reverse('us_states')
 
 
 	#Test proves REST GET response renders base template, 
@@ -23,9 +24,21 @@ class TestViews(TestCase):
 		self.assertEquals(response.status_code, 200)
 		self.assertTemplateUsed(response, 'base.html')
 
+	def test_index_POST(self):
+
+		response = self.client.post(self.index)
+		self.assertEquals(response.status_code, 200)
+		self.assertTemplateUsed(response, 'base.html')
+
 	def test_contactus_GET(self):
 		
 		response = self.client.get(self.contactus)
+		self.assertEquals(response.status_code, 200)
+		self.assertTemplateUsed(response, 'base.html')
+
+	def test_contactus_POST(self):
+
+		response = self.client.post(self.contactus)
 		self.assertEquals(response.status_code, 200)
 		self.assertTemplateUsed(response, 'base.html')
 		
@@ -40,3 +53,8 @@ class TestViews(TestCase):
 		response = self.client.get(self.about)
 		self.assertEquals(response.status_code, 200)
 		self.assertTemplateUsed(response, 'base.html')	
+
+	#def test_states_GET(self):
+	#	response = self.client.get(self.us_states)
+	#	self.assertEquals(response.status_code, 200)
+	#ß	self.assertTemplateUsed(response, 'base.html')	

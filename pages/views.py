@@ -10,6 +10,8 @@ from matplotlib.patches import Shadow
 from django.db import connection
 
 from django.http import HttpResponse
+from .models import UsZipFips
+from .forms import ZipCodeForm
 from .forms import ContactUsForm
 import feedparser
 
@@ -54,6 +56,11 @@ def contactus(request):
 def news(request):
 	url = 'https://tools.cdc.gov/api/v2/resources/media/403372.rss'
 	feed = feedparser.parse(url)
+	for item in feed.entries:
+		item.published = item.published[0:16]
+		print(item.published[0:16])
+		print(type(item))
+	
 	return render(request, 'pages/newsarticles.html', {
 		'feed':feed
 		})
@@ -61,24 +68,8 @@ def news(request):
 def about(request):
 	return render(request, 'pages/about.html')
 
-def us_states(request):
-	context = {
-		'state': UsZipFips.state,
-		'county': UsZipFips.countyname,
-		'state': UsZipFips.state,
-		'fips': UsZipFips.stcountyfips,
-		'fips_list': UsZipFips.objects.all()[0:15],
-	}
-	return render(request, 'pages/us_states.html', context)
-
-def search(request):
-	form = ZipCodeForm()
-	context={'form': form}
-	if request.method == 'POST':
-		context = {
-		'zips_list': UsZipFips.objects.filter(zip=request.POST.get("zipCode")).values(),
-		}	
-	return render(request, 'pages/search.html', context)
+def search_results(request):
+	return render(request, "pages/search_results.html")
 
 def generatePieGraphic(request):
 	# Pie chart, where the slices will be ordered and plotted counter-clockwise:

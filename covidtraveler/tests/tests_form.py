@@ -6,7 +6,8 @@ class TestForms(SimpleTestCase):
 
 	def test_zip_code_valid_data(self):
 		form = ZipCodeForm(data={
-			'zipCode': 19061
+			'zipCode': 19061,
+			'stateChoice': 'NJ'
 			})
 		self.assertTrue(form.is_valid())
 
@@ -30,5 +31,7 @@ class TestForms(SimpleTestCase):
 
 		self.assertFalse(form.is_valid())
 		self.assertEquals(len(form.errors), 3)
+
+
 
 
