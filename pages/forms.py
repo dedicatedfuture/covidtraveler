@@ -19,11 +19,6 @@ class ZipCodeForm(forms.Form):
 	#zipCode = forms.RegexField(label='Zip code')
 
 	zipCode = forms.CharField(label='Zip code')
-
-
-	print("sql from zip code form: ", sql)
-
-	request_data = retrieveDBdata(request,sql)
 	stateChoices = (('PA', 'PA'), ('DE', 'DE'),('CA', 'CA'))
 	stateChoice = forms.ChoiceField(choices = stateChoices, label='State choice: ')
 		

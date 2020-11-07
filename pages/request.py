@@ -17,13 +17,13 @@ class Request:
         self._county_ = request.POST.get("county")
         self.county = self._county_
 
-    def search_type(self):
-        if len(self._state_) > 0 and len(self._county_) > 0:
+   # def search_type(self):
+        #if len(self._state_) > 0 > 0:
             # this is a state/county search
-            return Request.STATE_COUNTY
-        if len(self._state_) > 0 and len(self._county_) == 0:
+         #   return Request.STATE_COUNTY
+        #if len(self._state_) > 0  == 0:
             # this is a state/county search
-            return Request.STATE_ONLY
-        if len(self._zip_) > 0:
+          #  return Request.STATE_ONLY
+        #if len(self._zip_) > 0:
             # this is a state/county search
-            return Request.ZIPCODE
+         #   return Request.ZIPCODE
