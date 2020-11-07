@@ -10,11 +10,23 @@ class Request:
     ZIPCODE=3
 
     def __init__(self,request):
-        self._zip_ = request.POST.get("zipCode")
+        """
+        Initialize the Request class instance
+        """
+        if request.POST.get("zipCode")!=None:
+            self._zip_ = request.POST.get("zipCode")
+        else:
+            self._zip_ = ''
         self.zip = self._zip_
-        self._state_ = request.POST.get("state")
+        if request.POST.get("state")!=None:           
+            self._state_ = request.POST.get("state")
+        else:
+            self._state_ = ''
         self.state = self._state_
-        self._county_ = request.POST.get("county")
+        if request.POST.get("county")!=None:
+            self._county_ = request.POST.get("county")
+        else:
+            self._county_ = ''
         self.county = self._county_
 
     def search_type(self):
