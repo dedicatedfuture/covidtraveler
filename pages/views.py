@@ -27,18 +27,18 @@ def index(request):
 		img2=img1="data:image/png;base64,"
 		req = Request(request)
 		
-		#if req.search_type()==req.STATE_COUNTY:
-		#	pass
-		#elif req.search_type()==req.STATE_ONLY:
-		#	pass
-		#elif req.search_type()==req.ZIPCODE:
-		#	req.state = getState(req)
+		if req.search_type()==req.STATE_COUNTY:
+			pass
+		elif req.search_type()==req.STATE_ONLY:
+			pass
+		elif req.search_type()==req.ZIPCODE:
+			req.state = getState(req)
 		print ("req=",req)
 		img1+=generatePieGraphic(req)
 		img2+=generateStackPlot(req)
 		img3,img4 = generateDualPlotCases(req)
 		context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4}		
-		return render(request, 'show_results.html', context)
+		return render(request, 'pages/search_results.html', context)
 	return render(request, 'base.html', context)
 
 def contactus(request):
@@ -81,13 +81,13 @@ def generatePieGraphic(request):
 			FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS)) 
 			WHERE uzf.zip = %s 
 			GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state """
-	#if request.search_type()==request.STATE_COUNTY:
-	#	sql = """SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
-     #           SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased
-      #          FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS))
-       #         WHERE uzf.CountyName = %s
-        #        and uzf.State = %s
-         #       GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state;"""
+	if request.search_type()==request.STATE_COUNTY:
+		sql = """SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
+                SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased
+                FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS))
+                WHERE uzf.CountyName = %s
+                and uzf.State = %s
+                GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state;"""
 
 	request_data = retrieveDBdata(request,sql) 
 	print("generatePieGraphic SQL=",sql)
