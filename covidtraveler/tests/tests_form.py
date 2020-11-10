@@ -7,16 +7,18 @@ class TestForms(SimpleTestCase):
 	def test_zip_code_valid_data(self):
 		form = ZipCodeForm(data={
 			'zipCode': 19061,
-			'stateChoice': 'NJ'
+			'stateChoice': 'DE'
 			})
 		self.assertTrue(form.is_valid())
+		print('zip code valid test: ')
+		print(form.is_valid())
 
 
 	def test_zip_code_form_no_data(self):
 		form = ZipCodeForm(data={})
 
 		self.assertFalse(form.is_valid())
-		self.assertEquals(len(form.errors), 1)
+		self.assertEquals(len(form.errors), 2)
 
 	def test_contactus_valid_data(self):
 		form = ContactUsForm(data={
