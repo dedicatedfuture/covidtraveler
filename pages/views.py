@@ -46,8 +46,9 @@ def index(request):
 		req = Request(request)
 		print("request.method=",request.method)
 		form = ZipCodeForm(req) 
-		context={'form': form}		
+		context={'form': form}	
 		return render(request, 'base.html', context)
+	return render(request, 'base.html', context)
 
 
 def contactus(request):
