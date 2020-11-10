@@ -1,5 +1,6 @@
 from django import forms
-from . models import Feedback
+from pages.models import Feedback
+
 
 class ZipCodeForm(forms.Form):
 	zipCode = forms.CharField(label='Zip code')
@@ -27,7 +28,6 @@ class ZipCodeForm(forms.Form):
 		for i in range(len(dictionaryList)):
 			tempList.append(tuple(dictionaryList[i].items())[0])
 		return tempList
-
 
 class ContactUsForm(forms.ModelForm):
 

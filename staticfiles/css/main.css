@@ -113,10 +113,10 @@ input[type="submit"]{
 
 .footer {
   position: fixed;
-  left: 0;
+  left:0;
   bottom: 0;
   width: 100%;
-  height: 160px;
+  height: 200px;
   background-color: #073B4C;
 }
 .footer-boxes{
