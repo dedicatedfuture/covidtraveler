@@ -1,7 +1,5 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest
-from . models import UsZipFips, CovidFinalmasterTable
-from . forms import ZipCodeForm
 from . request import Request
 import feedparser, matplotlib.pyplot as plt, base64
 from io import StringIO, BytesIO
@@ -17,17 +15,11 @@ import feedparser
 
 	# Create your views here.
 def index(request):
-	# this code renders the form that gets user input
-	print("request.method=",request.method)
-	form = ZipCodeForm() 
-	context={'form': form, 'form1': '-- Or --', 'input':'<input type="submit">'}
-
 
 	# if user enters input, this code will fire because of the POST action by the user clicking Submit
 	if request.method == 'POST':
 		img2=img1="data:image/png;base64,"
 		req = Request(request)
-		
 		if req.search_type()==req.STATE_COUNTY:
 			pass
 		elif req.search_type()==req.STATE_ONLY:
@@ -46,10 +38,8 @@ def index(request):
 		req = Request(request)
 		print("request.method=",request.method)
 		form = ZipCodeForm(req) 
-		context={'form': form}	
+		context={'form': form}		
 		return render(request, 'base.html', context)
-	return render(request, 'base.html', context)
-
 
 def contactus(request):
 
@@ -85,8 +75,8 @@ def generatePieGraphic(request):
 	# Pie chart, where the slices will be ordered and plotted counter-clockwise:
 	# make a square figure and axes
 
-	
-	sql = """SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
+	if request.search_type()==request.ZIPCODE:
+		sql = """SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
 			SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased 
 			FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS)) 
 			WHERE uzf.zip = %s 
