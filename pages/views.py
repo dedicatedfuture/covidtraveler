@@ -9,10 +9,10 @@ from PIL import Image
 from matplotlib.patches import Shadow
 from django.db import connection
 
-from django.http import HttpResponse
-from .models import UsZipFips
-from .forms import ZipCodeForm
-from .forms import ContactUsForm
+#from django.http import HttpResponse
+#from .models import UsZipFips
+from . forms import ZipCodeForm, ContactUsForm
+#from forms import ContactUsForm
 import feedparser
 
 	# Create your views here.
@@ -22,7 +22,8 @@ def index(request):
 	form = ZipCodeForm() 
 	context={'form': form, 'form1': '-- Or --', 'input':'<input type="submit">'}
 
-	# after user enters input, this code will fire because of the POST action by the user clicking Submit
+
+	# if user enters input, this code will fire because of the POST action by the user clicking Submit
 	if request.method == 'POST':
 		img2=img1="data:image/png;base64,"
 		req = Request(request)
@@ -37,9 +38,17 @@ def index(request):
 		img1+=generatePieGraphic(req)
 		img2+=generateStackPlot(req)
 		img3,img4 = generateDualPlotCases(req)
-		context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4}		
-		return render(request, 'pages/search_results.html', context)
-	return render(request, 'base.html', context)
+		context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4}
+		return render(request, "pages/search_results.html", context)
+	
+	else: # home page was just invoked, so initialize
+		# this code renders the form that gets user input
+		req = Request(request)
+		print("request.method=",request.method)
+		form = ZipCodeForm(req) 
+		context={'form': form}		
+		return render(request, 'base.html', context)
+
 
 def contactus(request):
 
@@ -241,8 +250,8 @@ def generateDualPlotCases(req):
 		and cft.province_state = %s
 		group by cft.province_state, cft.last_update;
 	"""
-	state_data = retrieveDBdata2(req,sql,req.STATE_ONLY)
-
+	#state_data = retrieveDBdata2(req,sql,req.STATE_ONLY)
+	state_data = retrieveDBdata(req,sql)
 	if len(county_data) > 0 and len(state_data) > 0:
 		from io import BytesIO
 		
@@ -376,7 +385,9 @@ def retrieveDBdata(req,sql):
 		elif req.search_type() in (req.STATE_COUNTY, req.STATE_ONLY):		
 			data = [req.county,req.state]
 			cursor.execute(sql, data)
-		print("req.search_type()=",req.search_type())
+		else:
+			cursor.execute(sql)
+		print("retrieveDBdata() req.search_type()=",req.search_type(), "=sql=",sql )
 	return  dictFetchRows(cursor)
 
 def retrieveDBdata2(req,sql,reqType):
@@ -395,18 +406,20 @@ def retrieveDBdata2(req,sql,reqType):
 	return  dictFetchRows(cursor)
 
 def dictFetchRows(cursor):
-	"Return all rows from a cursor as a list of dictionaries"
+	"""
+	Return all rows from cursor as a list of dictionaries
+	"""
 	columns = [col[0] for col in cursor.description]
 	print ("columns=",columns,"rows=",cursor.rowcount)
 	result_list=list()
-	rowcnt=0 	
+	#rowcnt=0 	
 	for row in cursor:
 		res=dict()
 		for i in range(len(columns)):
 			key=columns[i]
 			res[key] = row[i] 
 		result_list.append(res)
-	print ("result_list=",result_list)
+	#print ("result_list=",result_list)
 	return result_list
 
 def getState(req):
