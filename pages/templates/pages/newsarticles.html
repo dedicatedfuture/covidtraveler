@@ -1,19 +1,24 @@
 {% extends "base.html" %}
+{% load static %}
+<link href="{% static '/css/normalize.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static '/css/main.css' %}" rel="stylesheet" type="text/css">
 
 
-{%block content %}
-<h2>Coronavirus News from CDC</h2>
+{% block content %}
+<h2 class="news-header">Coronavirus News from CDC</h2>
+<h4 class="news-header2">Center for Disease Control</h4>
 
 
 {% if feed.items %}
 
 	{% for item in feed.items %}
 		<div>
-		   <p>
-		       {{ item.published }}
-		       <a href="{{ item.link }}" target="_blank">{{ item.title }}</a>
-		       {{ item.author }}
-		   </p>
+		   <div class="{% cycle 'row1' 'row2' %} rows">
+		       
+		       <h3><a href="{{ item.link }}" target="_blank">{{ item.title }}</a></h3>
+		       <p>Date Published: {{ item.published}}</p>
+		   
+		   </div>
 		</div>
 	{% endfor %}
 

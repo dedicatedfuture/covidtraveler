@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 from django.urls import reverse, resolve
-from pages.views import index, contactus, news, about
+from pages.views import index, contactus, news, about, search_results
 
 #These unit tests check that the views match the urls
 class TestUrls(SimpleTestCase):
@@ -9,7 +9,6 @@ class TestUrls(SimpleTestCase):
 		url = reverse('index')
 		self.assertEquals(resolve(url).func, index)
 		print(resolve(url))
-
 
 	def test_contactus_url_is_resolved(self):
 		url = reverse('contactus')
@@ -25,3 +24,8 @@ class TestUrls(SimpleTestCase):
 		url = reverse('about')
 		self.assertEquals(resolve(url).func, about)
 		print(resolve(url))
+
+	def test_search_results_is_resolved(self):
+		url = reverse('search_results')
+		self.assertEquals(resulve(url).func.view_class, search_results)
+

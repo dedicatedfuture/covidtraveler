@@ -4,40 +4,46 @@
 <head>
 	<meta charset="utf-8">
 	<title>Covid Traveler Warning</title>
-	<link href="{% static 'main.css' %}" rel="stylesheet" type="text/css">
+	<link href="{% static '/css/normalize.css' %}" rel="stylesheet" type="text/css">
+	<link href="{% static '/css/main.css' %}" rel="stylesheet" type="text/css">
 </head>
 <body>
 	<header id="header">
-		<ul>
-			<li><a href="{% url 'index' %}">Home</a></li>
-			<li><a href="{% url 'news' %}">News</a></li>
-			<li><a href="{% url 'contactus' %}">Contact</a></li>
-			<li><a href="{% url 'about' %}">About</a></li>
-			<li><a href="{% url 'us_states' %}">US States</a></li>
-		</ul>
+		<div class="site-header">
+			<nav class="menu-master">
+				<a href="{% url 'index' %}">Home</a>
+				<a href="{% url 'news' %}">News</a>
+				<a href="{% url 'contactus' %}">Contact</a>		
+				<a href="{% url 'about' %}">About</a>
+			</nav>
+		</div>
 	</header>
 
 	{% block content %}
-
-	<h1 class="headings">Welcome to COVID Traveler Warning</h1>
-	<h2 class="headings">Where would you like to travel?</h2>
-
-	<form action="" method="post" class="forms">
-		{%csrf_token%}
-		{{ form }}
-		<br>
-		<br>
-		<input type="submit">
-	</form>
+	<div class="main-div-outer" style="background-image: url('{% static '/images/usMapPins.jpg' %}')";>
 		
+		<div class="main-div-inner">
 
+			<h1 class="headings">Welcome to COVID Traveler Warning</h1>
+				<h2 class="headings">What US County would you like data on?</h2>
 
-	{% endblock content %}
+				<form action="" method="post" class="forms">
+					{%csrf_token%}
+					
+					{{ form }}
+					<br>
+					<br>
+					<input type="submit">
+				</form>
+			<div class="main-div-inner-inner">
+				
+			</div>
+		</div>
+	</div>	
 
 	<footer>
-
 		<div class="footer">
-			&reg; Penn State Great Valley
+			<a href="https://greatvalley.psu.edu/" target="_blank"><div class="footer-boxes box1" ><img src="{% static '/images/pennState.png' %}"></div> </a>
 		</div>
 	</footer>
 	
