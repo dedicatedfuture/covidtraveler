@@ -11,7 +11,7 @@ class ZipCodeForm(forms.Form):
 	def __init__(self, req, *args, **kwargs):
 		super().__init__(*args)
 		self.fields['stateChoice'].choices=self.setStateChoices(req)
-		self.fields['countyChoice'].choices=self.setCountyChoices(req)
+		#self.fields['countyChoice'].choices=self.setCountyChoices(req)
 
 	def setStateChoices(self,req):
 		"""
