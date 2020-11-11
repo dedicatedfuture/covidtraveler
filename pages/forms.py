@@ -6,7 +6,7 @@ from pages.models import Feedback
 class ZipCodeForm(forms.Form):
 	zipCode = forms.CharField(label='Zip code')
 	stateChoice = forms.ChoiceField(label='State choice: ')
-	countyChoice = forms.ChoiceField(label='County choice: ')
+	#countyChoice = forms.ChoiceField(label='County choice: ')
 
 	def __init__(self, req, *args, **kwargs):
 		super().__init__(*args)

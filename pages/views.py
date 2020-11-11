@@ -45,6 +45,9 @@ def get_county(request):
 		context={'form': form}		
 		return render(request, 'base.html', context)
 
+def errorpage(request):
+	return render(request, 'pages/errorpage.html')
+
 def contactus(request):
 
 	if request.method == 'POST':
