@@ -6,11 +6,7 @@ from io import StringIO, BytesIO
 from PIL import Image
 from matplotlib.patches import Shadow
 from django.db import connection
-
-#from django.http import HttpResponse
-#from .models import UsZipFips
 from . forms import ZipCodeForm, ContactUsForm
-#from forms import ContactUsForm
 import feedparser
 
 	# Create your views here.
@@ -40,6 +36,17 @@ def index(request):
 		form = ZipCodeForm(req) 
 		context={'form': form}		
 		return render(request, 'base.html', context)
+
+def get_county(request):
+	if request.method =='POST':
+		req = Request(request)
+		print("request.method=",request.method)
+		form = ZipCodeForm(req) 
+		context={'form': form}		
+		return render(request, 'base.html', context)
+
+def errorpage(request):
+	return render(request, 'pages/errorpage.html')
 
 def contactus(request):
 
@@ -241,8 +248,8 @@ def generateDualPlotCases(req):
 		and cft.province_state = %s
 		group by cft.province_state, cft.last_update;
 	"""
-	#state_data = retrieveDBdata2(req,sql,req.STATE_ONLY)
-	state_data = retrieveDBdata(req,sql)
+	state_data = retrieveDBdata2(req,sql,req.STATE_ONLY)
+	#state_data = retrieveDBdata(req,sql)
 	if len(county_data) > 0 and len(state_data) > 0:
 		from io import BytesIO
 		
