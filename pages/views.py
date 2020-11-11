@@ -241,8 +241,8 @@ def generateDualPlotCases(req):
 		and cft.province_state = %s
 		group by cft.province_state, cft.last_update;
 	"""
-	#state_data = retrieveDBdata2(req,sql,req.STATE_ONLY)
-	state_data = retrieveDBdata(req,sql)
+	state_data = retrieveDBdata2(req,sql,req.STATE_ONLY)
+	#state_data = retrieveDBdata(req,sql)
 	if len(county_data) > 0 and len(state_data) > 0:
 		from io import BytesIO
 		
