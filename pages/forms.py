@@ -2,6 +2,7 @@ from django import forms
 from pages.models import Feedback
 
 
+
 class ZipCodeForm(forms.Form):
 	zipCode = forms.CharField(label='Zip code')
 	stateChoice = forms.ChoiceField(label='State choice: ')
@@ -10,6 +11,7 @@ class ZipCodeForm(forms.Form):
 	def __init__(self, req, *args, **kwargs):
 		super().__init__(*args)
 		self.fields['stateChoice'].choices=self.setStateChoices(req)
+		self.fields['countyChoice'].choices=self.setCountyChoices(req)
 
 	def setStateChoices(self,req):
 		"""
@@ -19,6 +21,12 @@ class ZipCodeForm(forms.Form):
 		sql = "select distinct state from covidtraveler_db.US_ZIP_FIPS;"
 		dictStates = retrieveDBdata(req,sql)
 		return self.convertDictionaryToListOfTuples(dictStates)
+
+	def setCountyChoices(self,req):
+		from . views import retrieveDBdata
+		sql = "select distinct county from covidtraveler_db.US_ZIP_FIPS;"
+		dictCounties = retrieveDBdata(req,sql)
+		return self.convertDictionaryToListOfTuples(dictCounties)
 
 	def convertDictionaryToListOfTuples(self, dictionaryList):
 		"""
