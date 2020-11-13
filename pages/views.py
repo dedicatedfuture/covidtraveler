@@ -30,7 +30,10 @@ def index(request):
 		img1+=generatePieGraphic(req)
 		img2+=generateStackPlot(req)
 		img3,img4 = generateDualPlotCases(req)
-		context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4}
+		msg_text = getMessagesForRequest(req)
+		#msg_text, list_txt = getMessagesForRequest(req)
+		#msg_text = 'Hello, message'
+		context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4, 'msg_text': msg_text}
 		return render(request, "pages/search_results.html", context)
 	
 	else: # home page was just invoked, so initialize
@@ -70,6 +73,34 @@ def about(request):
 
 def search_results(request):
 	return render(request, "pages/search_results.html")
+
+def getMessagesForRequest(req):
+	"""
+	Returns any messages for the request - these are maintained in the database.
+	"""
+	if req.search_type()==req.ZIPCODE:
+		sql="""
+		select distinctrow zm.zipcode, mt.msg_text 
+		from zips_msgs zm
+		inner join msg_text mt on zm.msg_id = mt.msg_id
+		where zm.zipcode = %s;
+		"""
+		request_data = retrieveDBdata2(req,sql,req.ZIPCODE)
+		print("getMessagesForRequest() request_data(zip)=",request_data)
+		msg = [d.get('msg_text', None) for d in request_data]
+		return msg[0]
+
+	else: # defaulting to a county name search 
+		sql="""
+		select fc.county_name, fc.fips, mt.msg_text 
+		from fips_county fc
+		inner join fips_msgs fm on fm.fips = fc.fips
+		inner join msg_text mt on mt.msg_id = fm.msg_id
+		where fc.county_name = %s
+		"""
+		request_data = retrieveDBdata2(req,sql,req.COUNTY_ONLY)
+		print("getMessagesForRequest() request_data(county)=",request_data)
+
 
 def generatePieGraphic(request):
 	# Pie chart, where the slices will be ordered and plotted counter-clockwise:
@@ -391,6 +422,10 @@ def retrieveDBdata2(req,sql,reqType):
 		data = req.zip
 	elif reqType in (req.STATE_COUNTY, req.STATE_ONLY):
 		data = req.state
+	elif reqType == req.COUNTY_ONLY:
+		data = req._county_
+	else:	# this should never happen!
+		return None
 
 	with connection.cursor() as cursor:
 		cursor.execute(sql, [data])

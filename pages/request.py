@@ -7,7 +7,8 @@ class Request:
     # constants
     STATE_COUNTY=1
     STATE_ONLY=2
-    ZIPCODE=3
+    COUNTY_ONLY=3
+    ZIPCODE=4
 
     def __init__(self,request):
         """
@@ -30,12 +31,15 @@ class Request:
         self.county = self._county_
 
     def search_type(self):
-        if len(self._state_) > 0 > 0:
+        if len(self._state_) > 0 and len(self._county_) > 0:
             #this is a state/county search
             return Request.STATE_COUNTY
-        if len(self._state_) > 0  == 0:
+        if len(self._state_) > 0 :
             #this is a state/county search
             return Request.STATE_ONLY
+        if len(self._county_) > 0 :
+            #this is a state/county search
+            return Request.COUNTY_ONLY
         if len(self._zip_) > 0:
             #this is a state/county search
             return Request.ZIPCODE
