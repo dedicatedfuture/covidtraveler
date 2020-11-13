@@ -38,9 +38,11 @@ def index(request):
 		return render(request, 'base.html', context)
 
 def get_county(request):
+	print('get county first :' , request)
 	if request.method =='POST':
 		req = Request(request)
 		print("request.method=",request.method)
+		print("getcounty", req)
 		form = ZipCodeForm(req) 
 		context={'form': form}		
 		return render(request, 'base.html', context)
