@@ -14,16 +14,20 @@ class Request:
         """
         Initialize the Request class instance
         """
+        self._request_ = request
+
         if request.POST.get("zipCode")!=None:
             self._zip_ = request.POST.get("zipCode")
         else:
             self._zip_ = ''
         self.zip = self._zip_
+        
         if request.POST.get("state")!=None:           
             self._state_ = request.POST.get("state")
         else:
             self._state_ = ''
         self.state = self._state_
+        
         if request.POST.get("county")!=None:
             self._county_ = request.POST.get("county")
         else:

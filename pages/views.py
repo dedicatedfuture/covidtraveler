@@ -16,29 +16,45 @@ def index(request):
 	if request.method == 'POST':
 		img2=img1="data:image/png;base64,"
 		req = Request(request)
-		if req.search_type()==req.STATE_COUNTY:
-			pass
-		elif req.search_type()==req.STATE_ONLY:
-			pass
-		elif req.search_type()==req.ZIPCODE:
-			req.state = getState(req)
-		print ("req=",req)
-		img1+=generatePieGraphic(req)
-		img2+=generateStackPlot(req)
-		img3,img4 = generateDualPlotCases(req)
-		msg_text = getMessagesForRequest(req)
-		#msg_text, list_txt = getMessagesForRequest(req)
-		#msg_text = 'Hello, message'
-		context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4, 'msg_text': msg_text}
-		return render(request, "pages/search_results.html", context)
+
+		#data sanity check - if data available for request then prepare search_results page
+		if isDataAvailableForRequest(req):
+			img1+=generatePieGraphic(req)
+			img2+=generateStackPlot(req)
+			img3,img4 = generateDualPlotCases(req)
+			msg_text = getMessagesForRequest(req)
+			if msg_text == None:
+				msg_text = ''
+			context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4, 'msg_text': msg_text}
+			return render(request, "pages/search_results.html", context)		
+		else:	#populate error page
+			err_msg = 'No data found for zipcode ' + req.zip 
+			context = {'err_msg': err_msg}
+			return render(request, 'pages/errorpage.html', context)
 	
-	else: # home page was just invoked, so initialize
+	else: # home page was just invoked, so initialize the form and render
 		# this code renders the form that gets user input
 		req = Request(request)
-		print("request.method=",request.method)
+		#print("request.method=",request.method)
 		form = ZipCodeForm(req) 
 		context={'form': form}		
 		return render(request, 'base.html', context)
+
+def isDataAvailableForRequest(req):
+	sql="""
+	SELECT count(*) as RowCnt
+	FROM covidtraveler_db.covid_finalmaster_table
+	WHERE fips IN 
+	(SELECT distinct STcountyFIPS 
+	FROM covidtraveler_db.US_ZIP_FIPS 
+	WHERE zip = %s);
+	"""
+	result = retrieveDBdata2(req,sql,req.ZIPCODE)
+	print ("isDataAvailableForRequest() result=",result, " count=",result[0]['RowCnt'])
+	if (result[0]['RowCnt'] >0 ):
+		return True
+	else:
+		return False
 
 def get_county(request):
 	if request.method =='POST':
@@ -93,9 +109,17 @@ def getMessagesForRequest(req):
 		where zm.zipcode = %s;
 		"""
 		request_data = retrieveDBdata2(req,sql,req.ZIPCODE)
-		print("getMessagesForRequest() request_data(zip)=",request_data)
+		#print("getMessagesForRequest() request_data(zip)=",request_data)
 		msg = [d.get('msg_text', None) for d in request_data]
-		return msg[0]
+		if msg!=None:
+			if len(msg)>0:
+				# get list of counties where the zip code exists
+				retVal = msg[0] + " Counties that contain zipcode " + req._zip_ + " include : " + getCountyListForZipcode(req) 
+				return retVal
+			else:
+				return None
+		else:
+			return None
 
 	else: # defaulting to a county name search 
 		sql="""
@@ -108,24 +132,42 @@ def getMessagesForRequest(req):
 		request_data = retrieveDBdata2(req,sql,req.COUNTY_ONLY)
 		print("getMessagesForRequest() request_data(county)=",request_data)
 
+def getCountyListForZipcode(req):
+	"""
+	Obtain unique list of counties for zip code passed in the Request object
+	"""
+	sql="""
+	SELECT distinct CountyName FROM covidtraveler_db.US_ZIP_FIPS
+	where zip = %s;
+	"""
+	county_list = retrieveDBdata2(req,sql,req.ZIPCODE)
+	county_names = [d.get('CountyName', None) for d in county_list]
+	if county_names!=None:
+		return str(county_names)
+	else:
+		return None
 
 def generatePieGraphic(request):
 	# Pie chart, where the slices will be ordered and plotted counter-clockwise:
 	# make a square figure and axes
 
 	if request.search_type()==request.ZIPCODE:
-		sql = """SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
+		sql = """
+			SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
 			SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased 
 			FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS)) 
 			WHERE uzf.zip = %s 
-			GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state """
+			GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state 
+			"""
 	if request.search_type()==request.STATE_COUNTY:
-		sql = """SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
-                SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased
-                FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS))
-                WHERE uzf.CountyName = %s
-                and uzf.State = %s
-                GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state;"""
+		sql = """
+			SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
+			SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased
+			FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS))
+			WHERE uzf.CountyName = %s
+			and uzf.State = %s
+			GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state;
+			"""
 
 	request_data = retrieveDBdata(request,sql) 
 	print("generatePieGraphic SQL=",sql)
@@ -161,7 +203,7 @@ def generatePieGraphic(request):
 		plt.savefig(buf, transparent = True, format="png")
 		buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
 	else:
-		buf_base64 = ''
+		buf_base64 = None
 	return buf_base64
 
 def generateStackPlot(request):
