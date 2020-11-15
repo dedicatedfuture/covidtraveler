@@ -160,11 +160,15 @@ input[type="submit"]{
 
 /* Base About Template*/
 .aboutOuter{
-  padding: 150px 30px 30px 30px;
+  padding: 150px 30px 300px 30px;
   background-color: #ffd166;
 }
 
 /* Base Contact Us Template*/
+
+#contactusOuter{
+  padding: 100px 30px 300px 30px;
+}
 
 /* Base News Template*/
 .news-header{
