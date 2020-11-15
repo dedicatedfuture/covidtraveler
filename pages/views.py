@@ -16,16 +16,17 @@ def index(request):
 	if request.method == 'POST':
 		img2=img1="data:image/png;base64,"
 		req = Request(request)
+		print("index() request.method=",request.method, "req=",req)
 
 		#data sanity check - if data available for request then prepare search_results page
 		if isDataAvailableForRequest(req):
 			img1+=generatePieGraphic(req)
 			img2+=generateStackPlot(req)
-			img3,img4 = generateDualPlotCases(req)
+			img3, img4 = generateDualPlotCases(req)
 			msg_text = getMessagesForRequest(req)
 			if msg_text == None:
 				msg_text = ''
-			context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4, 'msg_text': msg_text}
+			context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4, 'msg_text': msg_text, 'current_state' : req.state}
 			return render(request, "pages/search_results.html", context)		
 		else:	#populate error page
 			err_msg = 'No data found for zipcode ' + req.zip 
@@ -35,7 +36,7 @@ def index(request):
 	else: # home page was just invoked, so initialize the form and render
 		# this code renders the form that gets user input
 		req = Request(request)
-		#print("request.method=",request.method)
+		print("index() request.method=",request.method, "req=",req)
 		form = ZipCodeForm(req) 
 		context={'form': form}		
 		return render(request, 'base.html', context)
@@ -57,12 +58,12 @@ def isDataAvailableForRequest(req):
 		return False
 
 def get_county(request):
-	print('get county first :' , request)
 	if request.method =='POST':
 		req = Request(request)
-		print("request.method=",request.method)
-		print("getcounty", req)
-		form = ZipCodeForm(req) 
+		#print("request.method=",request.method)
+		print("get_county() request.method=",request.method, "req=",req)
+		form = ZipCodeForm(req)
+		form.setCountyChoices(req) 
 		context={'form': form}		
 		return render(request, 'base.html', context)
 
@@ -98,6 +99,68 @@ def about(request):
 
 def search_results(request):
 	return render(request, "pages/search_results.html")
+
+def retrieveDBdata(req,sql):
+	"""
+	Uses Request object to determine the type of request is being processed - this controls how the parameters are passed to the sql 
+	"""
+	from django.db import connection
+
+	with connection.cursor() as cursor:
+		if req.search_type() == req.ZIPCODE:
+			cursor.execute(sql, [req.zip])
+		elif req.search_type() == req.STATE_COUNTY:		
+			data = [req.county,req.state]
+			cursor.execute(sql, data)
+		elif req.search_type() == req.STATE_ONLY:		
+			data = [req.state]
+			cursor.execute(sql, data)		
+		elif req.search_type() == req.COUNTY_ONLY:		
+			data = [req.county]
+			cursor.execute(sql, data)		
+		else:
+			cursor.execute(sql)
+		print("retrieveDBdata() req.search_type()=",req.search_type(), "=sql=",sql )
+	return  dictFetchRows(cursor)
+
+def retrieveDBdata2(req,sql,reqType):
+	"""
+	... 
+	"""
+	from django.db import connection
+
+	if reqType == req.ZIPCODE:
+		data = req.zip
+	elif reqType in (req.STATE_COUNTY, req.STATE_ONLY):
+		data = req.state
+	elif reqType == req.COUNTY_ONLY:
+		data = req._county_
+	else:	# just execute the SQL, no params
+		print ("retrieveDBdata2 data=None, sql=",sql)
+		with connection.cursor() as cursor:
+			cursor.execute(sql)
+		return dictFetchRows(cursor)
+
+	with connection.cursor() as cursor:
+		cursor.execute(sql, [data])
+	return  dictFetchRows(cursor)
+
+def dictFetchRows(cursor):
+	"""
+	Return all rows from cursor as a list of dictionaries
+	"""
+	columns = [col[0] for col in cursor.description]
+	print ("columns=",columns,"rows=",cursor.rowcount)
+	result_list=list()
+	#rowcnt=0 	
+	for row in cursor:
+		res=dict()
+		for i in range(len(columns)):
+			key=columns[i]
+			res[key] = row[i] 
+		result_list.append(res)
+	#print ("result_list=",result_list)
+	return result_list
 
 def getMessagesForRequest(req):
 	"""
@@ -445,67 +508,15 @@ def generateDualPlotCases(req):
 		deceased_graph = ''
 	return cases_graph, deceased_graph
 
-def retrieveDBdata(req,sql):
-	"""
-	Uses request.POST.get("zipCode")).values() to get value of zip code to use as param for query 
-	"""
-	from django.db import connection
-	# data = request.POST.get("zipCode")
 
-	with connection.cursor() as cursor:
-		if req.search_type() == req.ZIPCODE:
-			cursor.execute(sql, [req.zip])
-		elif req.search_type() in (req.STATE_COUNTY, req.STATE_ONLY):		
-			data = [req.county,req.state]
-			cursor.execute(sql, data)
-		else:
-			cursor.execute(sql)
-		print("retrieveDBdata() req.search_type()=",req.search_type(), "=sql=",sql )
-	return  dictFetchRows(cursor)
 
-def retrieveDBdata2(req,sql,reqType):
-	"""
-	... 
-	"""
-	from django.db import connection
-
-	if reqType == req.ZIPCODE:
-		data = req.zip
-	elif reqType in (req.STATE_COUNTY, req.STATE_ONLY):
-		data = req.state
-	elif reqType == req.COUNTY_ONLY:
-		data = req._county_
-	else:	# this should never happen!
-		return None
-
-	with connection.cursor() as cursor:
-		cursor.execute(sql, [data])
-	return  dictFetchRows(cursor)
-
-def dictFetchRows(cursor):
-	"""
-	Return all rows from cursor as a list of dictionaries
-	"""
-	columns = [col[0] for col in cursor.description]
-	print ("columns=",columns,"rows=",cursor.rowcount)
-	result_list=list()
-	#rowcnt=0 	
-	for row in cursor:
-		res=dict()
-		for i in range(len(columns)):
-			key=columns[i]
-			res[key] = row[i] 
-		result_list.append(res)
-	#print ("result_list=",result_list)
-	return result_list
-
-def getState(req):
-	sql="""
-	SELECT distinct snx.state_fullname as state
-	FROM covidtraveler_db.state_name_xref snx 
-	inner join covidtraveler_db.US_ZIP_FIPS ufz on snx.state_abbrev = ufz.State
-	where ufz.zip = %s;
-	"""
-	return retrieveDBdata2(req,sql,req.ZIPCODE)[0]['state']
+# def getState(req):
+# 	sql="""
+# 	SELECT distinct snx.state_fullname as state
+# 	FROM covidtraveler_db.state_name_xref snx 
+# 	inner join covidtraveler_db.US_ZIP_FIPS ufz on snx.state_abbrev = ufz.State
+# 	where ufz.zip = %s;
+# 	"""
+# 	return retrieveDBdata2(req,sql,req.ZIPCODE)[0]['state']
 
 
