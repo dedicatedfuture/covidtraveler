@@ -5,6 +5,26 @@
 
 {% block content %}
 
-<h2 style="padding:200px">Error Page</h2>
+<div class="main-div-outer" style="background-image: url('{% static '/images/usMapPins.jpg' %}')";>
+		
+    <div class="main-div-inner">
+
+        <h1 class="headings">Welcome to COVID Traveler Warning</h1>
+            <h2 class="headings">No data for location provided : </h2>
+
+            <form action="" method="post" class="forms">
+                {%csrf_token%}
+                
+                {{ err_msg }}
+                <br>
+                <br>
+                <br>
+                <input type="submit">
+            </form>
+        <div class="main-div-inner-inner">
+            
+        </div>
+    </div>
+</div>	
 
 {% endblock content %}
