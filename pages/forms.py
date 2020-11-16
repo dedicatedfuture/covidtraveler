@@ -2,18 +2,22 @@ from django import forms
 from pages.models import Feedback
 
 class ZipCodeForm(forms.Form):
-	zipCode = forms.CharField(label='Zip code')
-	stateChoice = forms.ChoiceField(label='State choice ')
+	zipCode = forms.CharField(label='Zip code',required=False)
+	stateChoice = forms.ChoiceField(label='State choice ',)
 	countyChoice = forms.ChoiceField(label='County choice ')
 
 	def __init__(self, req, *args, **kwargs):
 		super().__init__(*args)
+		print("__init__(1) req.state=",req.state)
 		if req.state != None:
-			if len(req.state)> 0:
-				if  req.state != self.fields['stateChoice'].choices[0][1]:
-					self.fields['stateChoice'].choices=self.getStateChoices(req)
-					print("ZipCodeForm() __init__, req.state=",req.state," self.fields['stateChoice'].choices=",self.fields['stateChoice'].choices)
-					self.fields['countyChoice'].choices=self.getCountyChoices(req)		
+			self.fields['stateChoice'].choices=self.getStateChoices(req)
+			print("__init__(2) req.state=",req.state)
+			if len(req.state)==0:
+				req.state = self.fields['stateChoice'].choices[0][1]
+				print("__init__(3) req.state=",req.state)
+			self.fields['countyChoice'].choices=self.getCountyChoices(req)
+			print("self.fields['countyChoice'].choices=",self.fields['countyChoice'].choices)	
+			#self.fields['countyChoice'].choices=[('county', 'Kent'), ('county', 'New Castle'), ('county', 'Sussex')]
 		else:
 			req.state = self.fields['stateChoice'].choices[0][1]
 			print("ZipCodeForm() __init__, req.state=",req.state)
