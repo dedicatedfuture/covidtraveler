@@ -110,6 +110,9 @@ input[type="submit"]{
 #id_stateChoice{
   color: black;
 }
+#id_countyChoice{
+  color: black;
+}
 
 .footer {
   position: fixed;
