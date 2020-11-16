@@ -9,10 +9,11 @@ class ZipCodeForm(forms.Form):
 	def __init__(self, req, *args, **kwargs):
 		super().__init__(*args)
 		if req.state != None:
-			if  req.state != self.fields['stateChoice'].choices[0][1]:
-				self.fields['stateChoice'].choices=self.getStateChoices(req)
-				print("ZipCodeForm() __init__, req.state=",req.state," self.fields['stateChoice'].choices=",self.fields['stateChoice'].choices)
-				self.fields['countyChoice'].choices=self.getCountyChoices(req)		
+			if len(req.state)> 0:
+				if  req.state != self.fields['stateChoice'].choices[0][1]:
+					self.fields['stateChoice'].choices=self.getStateChoices(req)
+					print("ZipCodeForm() __init__, req.state=",req.state," self.fields['stateChoice'].choices=",self.fields['stateChoice'].choices)
+					self.fields['countyChoice'].choices=self.getCountyChoices(req)		
 		else:
 			req.state = self.fields['stateChoice'].choices[0][1]
 			print("ZipCodeForm() __init__, req.state=",req.state)
