@@ -16,12 +16,13 @@ def index(request):
 	if request.method == 'POST':
 		img2=img1="data:image/png;base64,"
 		req = Request(request)
-		print("index() request.method=",request.method, "req=",req)
+		print("index()#1 request.method=",request.method, "req.state=",req.state)
 
 		#data sanity check - if data available for request then prepare search_results page
 		if isDataAvailableForRequest(req):
 			img1+=generatePieGraphic(req)
 			img2+=generateStackPlot(req)
+			print("index()#2 request.method=",request.method, "req.state=",req.state)
 			img3, img4 = generateDualPlotCases(req)
 			msg_text = getMessagesForRequest(req)
 			if msg_text == None:
@@ -61,7 +62,7 @@ def get_county(request):
 	if request.method =='POST':
 		req = Request(request)
 		#print("request.method=",request.method)
-		print("get_county() request.method=",request.method, "req=",req)
+		print("get_county() request.method=",request.method, "req.state=",req.state)
 		form = ZipCodeForm(req)
 		form.setCountyChoices(req) 
 		context={'form': form}		
@@ -140,7 +141,7 @@ def retrieveDBdata2(req,sql,reqType):
 		with connection.cursor() as cursor:
 			cursor.execute(sql)
 		return dictFetchRows(cursor)
-
+	print("retrieveDBdata2() data=",data, "sql=",sql)
 	with connection.cursor() as cursor:
 		cursor.execute(sql, [data])
 	return  dictFetchRows(cursor)
@@ -152,14 +153,12 @@ def dictFetchRows(cursor):
 	columns = [col[0] for col in cursor.description]
 	print ("columns=",columns,"rows=",cursor.rowcount)
 	result_list=list()
-	#rowcnt=0 	
 	for row in cursor:
 		res=dict()
 		for i in range(len(columns)):
 			key=columns[i]
 			res[key] = row[i] 
 		result_list.append(res)
-	#print ("result_list=",result_list)
 	return result_list
 
 def getMessagesForRequest(req):
@@ -173,6 +172,7 @@ def getMessagesForRequest(req):
 		inner join msg_text mt on zm.msg_id = mt.msg_id
 		where zm.zipcode = %s;
 		"""
+		print("getMessagesForRequest() here")
 		request_data = retrieveDBdata2(req,sql,req.ZIPCODE)
 		#print("getMessagesForRequest() request_data(zip)=",request_data)
 		msg = [d.get('msg_text', None) for d in request_data]
@@ -329,6 +329,10 @@ def generateStackPlot(request):
 		# convert the dictionary back to a list structure
 		state=list(state)
 
+		#!!!fugly code alert!!!
+		request.state = state #this is a fudge - should not need this here!!
+		#!!!fugly code alert!!!
+
 		population = {
 			'Cases': cases,
 			'Deceased': deceased,
@@ -356,6 +360,7 @@ def generateDualPlotCases(req):
 	# Dual plot chart to compare two related data items that occur with different scaling
 	import numpy as np
 	#First, retrieve query data from request
+	print("generateDualPlotCases() here")
 
 	if req.search_type()==req.ZIPCODE:
 		sql = """
@@ -507,16 +512,5 @@ def generateDualPlotCases(req):
 		cases_graph = ''
 		deceased_graph = ''
 	return cases_graph, deceased_graph
-
-
-
-# def getState(req):
-# 	sql="""
-# 	SELECT distinct snx.state_fullname as state
-# 	FROM covidtraveler_db.state_name_xref snx 
-# 	inner join covidtraveler_db.US_ZIP_FIPS ufz on snx.state_abbrev = ufz.State
-# 	where ufz.zip = %s;
-# 	"""
-# 	return retrieveDBdata2(req,sql,req.ZIPCODE)[0]['state']
 
 
