@@ -50,8 +50,8 @@ class ZipCodeForm(forms.Form):
 		return self.convertDictionaryToListOfTuples(dictCounties)
 
 	def setCountyChoices(self,req):
-		#self.fields['countyChoice'].choices=self.getCountyChoices(req)
-		self.fields['countyChoice'].choices=[('county', 'Kent'), ('county', 'New Castle'), ('county', 'Sussex')]
+		self.fields['countyChoice'].choices=self.getCountyChoices(req)
+		#self.fields['countyChoice'].choices=[('county', 'Kent'), ('county', 'New Castle'), ('county', 'Sussex')]
 		print("setCountyChoices() self.fields['countyChoice'].choices=",self.fields['countyChoice'].choices)
 
 

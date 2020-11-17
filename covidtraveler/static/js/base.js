@@ -14,8 +14,12 @@ $(document).ready(function(){
 				state: $('#id_stateChoice option:selected').text()
 			}, 
 			csrfmiddlewaretoken: '{{ csrf_token }}', 
-			success: function(){
-
+			success: function(result){
+				console.log('results: ', result);
+				var $countyDropDown = $('#id_countyChoice')
+				$.each(result, function() {
+				    $countyDropDown.update(result.get_county);
+				});
 			}
 		})
 	});
