@@ -49,6 +49,17 @@ class ZipCodeForm(forms.Form):
 		#print("county dictcounties: ", dictCounties)
 		return self.convertDictionaryToListOfTuples(dictCounties)
 
+	def getCountyChoicesAsDict(self, req):
+		from . views import retrieveDBdata2
+		sql = """
+		SELECT county_basename as county
+		FROM covidtraveler_db.fips_county_state_names
+		WHERE state_fullname = %s;
+		"""
+		print("setCountyChoices req.state=",req.state," county query: ", sql)
+		dictCounties = retrieveDBdata2(req,sql,req.STATE_ONLY)
+		return dictCounties
+
 	def setCountyChoices(self,req):
 		self.fields['countyChoice'].choices=self.getCountyChoices(req)
 		#self.fields['countyChoice'].choices=[('county', 'Kent'), ('county', 'New Castle'), ('county', 'Sussex')]

@@ -61,12 +61,12 @@ def isDataAvailableForRequest(req):
 def get_county(request):
 	from django.http import JsonResponse
 	if request.method =='POST' and request.is_ajax():
-		#req = Request(request)
-		#form = ZipCodeForm(req)
-		#retval = form.getCountyChoicesAsDict(req)
-		#print("get_county() retval1=",retval)
-		#return JsonResponse(retval)
-		return JsonResponse({'countyChoice': 'Sussex'})	# this is a hard coded response to test returning data to the ajax response
+		req = Request(request)
+		form = ZipCodeForm(req)
+		retval = form.getCountyChoicesAsDict(req)
+		print("get_county() retval1=",retval)
+		return JsonResponse(retval, safe=False)
+		#return JsonResponse({'countyChoice': 'Sussex'})	# this is a hard coded response to test returning data to the ajax response
 		
 
 def errorpage(request):

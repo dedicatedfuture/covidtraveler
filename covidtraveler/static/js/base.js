@@ -14,11 +14,11 @@ $(document).ready(function(){
 			}, 
 			csrfmiddlewaretoken: '{{ csrf_token }}', 
 			success: function(result){
-				console.log('results: ', result);
-				var $countyDropDown = $('#id_countyChoice')
-				$.each(result, function() {
-				    $countyDropDown.update(result.get_county);
-				});
+				var $countyDropDown = $('#id_countyChoice');
+				$countyDropDown.empty();
+				for(var i = 0; i < result.length; i++){
+					$countyDropDown.append($('<option></option>').val(result[i].county).text(result[i].county));
+				}
 			}
 		})
 	});
