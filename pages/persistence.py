@@ -53,7 +53,6 @@ class DjangoDB(Persistance):
             if 'SQL' in persistanceRequest.argDict:
                 # expect to find a dictionary item named 'SQL'
                 self.sql=persistanceRequest.argDict['SQL']
-                # print ("getData() SQL=",self.sql)
 
             # look for params
             if 'whereParams' in persistanceRequest.argDict:
@@ -62,17 +61,17 @@ class DjangoDB(Persistance):
 
             # look to see if the return collection type is specified; default to dictionaries
             if 'ReturnType' in persistanceRequest.argDict and persistanceRequest.argDict['ReturnType']==self.TUPLES:
-                return self._fetchRowsAsTuples_(self._retrieveDBdata_(self.sql, self.data))
+                return self.__fetchRowsAsTuples(self.__retrieveDBdata(self.sql, self.data))
             
             else: #default to dictionaries
-                return self._fetchRowsAsDict_(self._retrieveDBdata_(self.sql, self.data))
+                return self.__fetchRowsAsDict(self.__retrieveDBdata(self.sql, self.data))
             
         except:
             print ("DjangoDB.getData() - unexpected error: ",sys.exc_info()[0])
             return None
 
             
-    def _retrieveDBdata_(self, sql, data):
+    def __retrieveDBdata(self, sql, data):
         """
         ... 
         """
@@ -85,7 +84,7 @@ class DjangoDB(Persistance):
             print ("DjangoDB._retrieveDBdata_() - unexpected error: ",sys.exc_info()[0])
             return None
 
-    def _fetchRowsAsDict_(self, cursor):
+    def __fetchRowsAsDict(self, cursor):
         """
         Return all rows from cursor as a list of dictionaries
         """
@@ -100,21 +99,22 @@ class DjangoDB(Persistance):
                 result_list.append(res)
             return result_list
         except:
-            print ("DjangoDB._fetchRowsAsDict_() - unexpected error: ",sys.exc_info()[0])
+            print ("DjangoDB.__fetchRowsAsDict() - unexpected error: ",sys.exc_info()[0])
             return None            
 
-    def _fetchRowsAsTuples_(self, cursor):
+    def __fetchRowsAsTuples(self, cursor):
         """
         Return all rows from cursor as two lists: columns, rows
         """
         try:
             columns = tuple(col[0] for col in cursor.description)
+            rows=list()
             for row in cursor:
-                rows=list()
                 rows.append(row)
+            print("__fetchRowsAsTuples() rows=",rows)
             return columns, rows
         except:
-            print ("DjangoDB._fetchRowsAsTuples_() - unexpected error: ",sys.exc_info()[0])
+            print ("DjangoDB.__fetchRowsAsTuples() - unexpected error: ",sys.exc_info()[0])
             return None            
 
 

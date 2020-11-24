@@ -8,7 +8,7 @@ from matplotlib.patches import Shadow
 from django.db import connection
 from . forms import ZipCodeForm, ContactUsForm
 from . persistence import DjangoDB, PersistanceRequest
-from . models import CovidMessages, CovidDataFactory
+from . models import CovidMessages, CovidDataFactory, CovidModel
 import feedparser
 from django.core.handlers.wsgi import WSGIRequest
 
@@ -50,21 +50,24 @@ def index(request):
 		
 		covidMsg=CovidMessages()
 		msg_text = covidMsg.getMessages(ZIPCODE=req.zip)
-		
+		print("index() msg_text=",msg_text)
+
 		"""
 		TO_DATE_TOTALS_CASES_DECEASED = 1
 		MONTHLY_TOTALS_CASES_DECEASED = 2
 		PAST_30_DAYS_CASES = 3
 		PAST_30_DAYS_DECEASED = 4
 		"""
-		test = CovidDataFactory(GRAPH_TYPE = CovidDataFactory.TO_DATE_TOTALS_CASES_DECEASED)
-		print ("CovidDataFactory(GRAPH_TYPE = CovidDataFactory.TO_DATE_TOTALS_CASES_DECEASED) = ", test)
-		test = CovidDataFactory(GRAPH_TYPE = CovidDataFactory.MONTHLY_TOTALS_CASES_DECEASED)
-		print ("CovidDataFactory(GRAPH_TYPE = CovidDataFactory.MONTHLY_TOTALS_CASES_DECEASED) = ", test)
-		test = CovidDataFactory(GRAPH_TYPE = CovidDataFactory.PAST_30_DAYS_CASES)
-		print ("CovidDataFactory(GRAPH_TYPE = CovidDataFactory.PAST_30_DAYS_CASES) = ", test)
-		test = CovidDataFactory(GRAPH_TYPE = CovidDataFactory.PAST_30_DAYS_DECEASED)
-		print ("CovidDataFactory(GRAPH_TYPE = CovidDataFactory.PAST_30_DAYS_DECEASED) = ", test)
+		data = CovidDataFactory(MODEL_TYPE=CovidModel.TO_DATE_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE='19003',ReturnType=DjangoDB.TUPLES )
+		print ("CovidDataFactory(MODEL_TYPE=CovidDataFactory.TO_DATE_TOTALS_CASES_DECEASED) type(data)=", type(data), " data.result=", data.result)
+		#cols, rows = CovidDataFactory(MODEL_TYPE=CovidModel.TO_DATE_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE='19003',ReturnType=DjangoDB.TUPLES )
+		#print ("CovidDataFactory(MODEL_TYPE=CovidDataFactory.TO_DATE_TOTALS_CASES_DECEASED) type(cols)=", type(cols), " type(rows)=", type(rows))
+		# test = CovidDataFactory(GRAPH_TYPE = CovidDataFactory.MONTHLY_TOTALS_CASES_DECEASED)
+		# print ("CovidDataFactory(GRAPH_TYPE = CovidDataFactory.MONTHLY_TOTALS_CASES_DECEASED) = ", test)
+		# test = CovidDataFactory(GRAPH_TYPE = CovidDataFactory.PAST_30_DAYS_CASES)
+		# print ("CovidDataFactory(GRAPH_TYPE = CovidDataFactory.PAST_30_DAYS_CASES) = ", test)
+		# test = CovidDataFactory(GRAPH_TYPE = CovidDataFactory.PAST_30_DAYS_DECEASED)
+		# print ("CovidDataFactory(GRAPH_TYPE = CovidDataFactory.PAST_30_DAYS_DECEASED) = ", test)
 		
 		return render(request, "pages/search_results.html")
 		
