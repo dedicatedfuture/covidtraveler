@@ -26,8 +26,8 @@ class TestViews(TestCase):
 		self.assertTemplateUsed(response, 'base.html')
 
 	def test_index_POST(self):
-		response = self.client.post(self.index, {'state': 'Delaware'})
-		req = Request(response)
+		response = self.client.post(self.index, {'zipCode': 19061})
+		#req = Request(response)
 		self.assertEquals(response.status_code, 200)
 		self.assertTemplateUsed(response, 'pages/search_results.html')
 
