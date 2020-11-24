@@ -16,13 +16,14 @@ def index(request):
 	if request.method == 'POST':
 		img2=img1="data:image/png;base64,"
 		req = Request(request)
-		print("index()#1 request.method=",request.method, "req.state=",req.state)
+		#print("index()#1 request.method=",request.method, "req.state=",req.state, "req= ", 
+		#	req.__dict__, "req values: ", request.POST.get('stateChoice'))
 
 		#data sanity check - if data available for request then prepare search_results page
 		if isDataAvailableForRequest(req):
 			img1+=generatePieGraphic(req)
 			img2+=generateStackPlot(req)
-			print("index()#2 request.method=",request.method, "req.state=",req.state)
+			#print("index()#2 request.method=",request.method, "req.state=",req.state)
 			img3, img4 = generateDualPlotCases(req)
 			msg_text = getMessagesForRequest(req)
 			if msg_text == None:
@@ -37,7 +38,7 @@ def index(request):
 	else: # home page was just invoked, so initialize the form and render
 		# this code renders the form that gets user input
 		req = Request(request)
-		print("index() request.method=",request.method, "req=",req)
+		#print("index() request.method=",request.method, "req=",req)
 		form = ZipCodeForm(req) 
 		context={'form': form}		
 		return render(request, 'base.html', context)
@@ -52,7 +53,7 @@ def isDataAvailableForRequest(req):
 	WHERE zip = %s);
 	"""
 	result = retrieveDBdata2(req,sql,req.ZIPCODE)
-	print ("isDataAvailableForRequest() result=",result, " count=",result[0]['RowCnt'])
+	#print ("isDataAvailableForRequest() result=",result, " count=",result[0]['RowCnt'])
 	if (result[0]['RowCnt'] >0 ):
 		return True
 	else:
@@ -64,7 +65,7 @@ def get_county(request):
 		req = Request(request)
 		form = ZipCodeForm(req)
 		retval = form.getCountyChoicesAsDict(req)
-		print("get_county() retval1=",retval)
+		#print("get_county() retval1=",retval)
 		return JsonResponse(retval, safe=False)
 		#return JsonResponse({'countyChoice': 'Sussex'})	# this is a hard coded response to test returning data to the ajax response
 		
@@ -79,7 +80,7 @@ def contactus(request):
 		if form.is_valid():
 			name = form.cleaned_data['name']
 			email = form.cleaned_data['email']
-			print(name, email)
+			#print(name, email)
 			form.save()
 	form = ContactUsForm()
 	return render(request, 'pages/contactus.html', {'form':form})
@@ -89,8 +90,8 @@ def news(request):
 	feed = feedparser.parse(url)
 	for item in feed.entries:
 		item.published = item.published[0:16]
-		print(item.published[0:16])
-		print(type(item))
+		#print(item.published[0:16])
+		#print(type(item))
 	
 	return render(request, 'pages/newsarticles.html', {
 		'feed':feed
@@ -122,7 +123,7 @@ def retrieveDBdata(req,sql):
 			cursor.execute(sql, data)		
 		else:
 			cursor.execute(sql)
-		print("retrieveDBdata() req.search_type()=",req.search_type(), "=sql=",sql )
+		#print("retrieveDBdata() req.search_type()=",req.search_type(), "=sql=",sql )
 	return  dictFetchRows(cursor)
 
 def retrieveDBdata2(req,sql,reqType):
@@ -138,11 +139,11 @@ def retrieveDBdata2(req,sql,reqType):
 	elif reqType == req.COUNTY_ONLY:
 		data = req._county_
 	else:	# just execute the SQL, no params
-		print ("retrieveDBdata2 data=None, sql=",sql)
+		#print ("retrieveDBdata2 data=None, sql=",sql)
 		with connection.cursor() as cursor:
 			cursor.execute(sql)
 		return dictFetchRows(cursor)
-	print("retrieveDBdata2() data=",data, "sql=",sql)
+	#print("retrieveDBdata2() data=",data, "sql=",sql)
 	with connection.cursor() as cursor:
 		cursor.execute(sql, [data])
 	return  dictFetchRows(cursor)
@@ -152,7 +153,7 @@ def dictFetchRows(cursor):
 	Return all rows from cursor as a list of dictionaries
 	"""
 	columns = [col[0] for col in cursor.description]
-	print ("columns=",columns,"rows=",cursor.rowcount)
+	#print ("columns=",columns,"rows=",cursor.rowcount)
 	result_list=list()
 	for row in cursor:
 		res=dict()
@@ -173,7 +174,7 @@ def getMessagesForRequest(req):
 		inner join msg_text mt on zm.msg_id = mt.msg_id
 		where zm.zipcode = %s;
 		"""
-		print("getMessagesForRequest() here")
+		#print("getMessagesForRequest() here")
 		request_data = retrieveDBdata2(req,sql,req.ZIPCODE)
 		#print("getMessagesForRequest() request_data(zip)=",request_data)
 		msg = [d.get('msg_text', None) for d in request_data]
@@ -196,7 +197,7 @@ def getMessagesForRequest(req):
 		where fc.county_name = %s
 		"""
 		request_data = retrieveDBdata2(req,sql,req.COUNTY_ONLY)
-		print("getMessagesForRequest() request_data(county)=",request_data)
+		#print("getMessagesForRequest() request_data(county)=",request_data)
 
 def getCountyListForZipcode(req):
 	"""
@@ -236,16 +237,16 @@ def generatePieGraphic(request):
 			"""
 
 	request_data = retrieveDBdata(request,sql) 
-	print("generatePieGraphic SQL=",sql)
-	print("request_data=",request_data)
+	#print("generatePieGraphic SQL=",sql)
+	#print("request_data=",request_data)
 
 	# can only generate graph if data available
 	if len(request_data) > 0:
 		labels = 'Cases', 'Deceased'
-		for i in range(len(request_data)):
-			print ("request_data=",request_data[i])
+		#for i in range(len(request_data)):
+			#print ("request_data=",request_data[i])
 		county = request_data[0]['County']
-		print ("county=",county)
+		#print ("county=",county)
 
 		#  case = 100*(Cases-Deceased)/Cases
 		case = 100*(int(request_data[0]['Cases'])-int(request_data[0]['Deceased']))/int(request_data[0]['Cases'])
@@ -304,8 +305,8 @@ def generateStackPlot(request):
 		FIPS = [d['FIPS'] for d in request_data if 'FIPS' in d]
 		# reduce list of FIPS values to unique set (becomes a dictionary)
 		FIPS=list(dict.fromkeys(FIPS))
-		for i in FIPS:
-			print("FIPS=",i)
+		#for i in FIPS:
+			#print("FIPS=",i)
 		
 		# start new row list that will contain only the FIPS to be graphed - this currently constrains to the first FIPS found, and
 		# msg text will be provided explaining to the user that they need to search additional counties within the state for more information
@@ -361,7 +362,7 @@ def generateDualPlotCases(req):
 	# Dual plot chart to compare two related data items that occur with different scaling
 	import numpy as np
 	#First, retrieve query data from request
-	print("generateDualPlotCases() here")
+	#print("generateDualPlotCases() here")
 
 	if req.search_type()==req.ZIPCODE:
 		sql = """
@@ -408,8 +409,8 @@ def generateDualPlotCases(req):
 		FIPS = [d['FIPS'] for d in county_data if 'FIPS' in d]
 		# reduce list of FIPS values to unique set (becomes a dictionary)
 		FIPS=list(dict.fromkeys(FIPS))
-		for i in FIPS:
-			print("FIPS=",i)
+		#for i in FIPS:
+			#print("FIPS=",i)
 		
 		# start new row list that will contain only the FIPS to be graphed - this currently constrains to the first FIPS found, and
 		# msg text will be provided explaining to the user that they need to search additional counties within the state for more information
@@ -445,7 +446,7 @@ def generateDualPlotCases(req):
 		state_deceased = [d['Deceased'] for d in state_data if 'Deceased' in d]
 		state_deceased_min=min(state_deceased)
 		state_deceased_max=max(state_deceased)
-		print("state_deceased_min=",state_deceased_min,"state_deceased_max=",state_deceased_max,"state_deceased=",state_deceased)
+		#print("state_deceased_min=",state_deceased_min,"state_deceased_max=",state_deceased_max,"state_deceased=",state_deceased)
 		
 		# cases graphs
 		plt.ioff()	
@@ -488,7 +489,7 @@ def generateDualPlotCases(req):
 		else:
 				ticks=1
 		axs_deceased[0].set_yticks(np.arange(county_deceased_min, county_deceased_max, ((county_deceased_max-county_deceased_min)//ticks)))
-		print("county_deceased_min=",county_deceased_min,"county_deceased_max=",county_deceased_max,"ticks=",ticks)
+		#print("county_deceased_min=",county_deceased_min,"county_deceased_max=",county_deceased_max,"ticks=",ticks)
 		axs_deceased[0].set_ylim(county_deceased_min, county_deceased_max*1.1)
 
 		axs_deceased[1].plot(t, state_deceased)

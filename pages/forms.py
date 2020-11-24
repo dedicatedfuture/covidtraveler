@@ -2,26 +2,26 @@ from django import forms
 from pages.models import Feedback
 
 class ZipCodeForm(forms.Form):
-	zipCode = forms.CharField(label='Zip code',required=False)
-	stateChoice = forms.ChoiceField(label='State choice ',)
-	countyChoice = forms.ChoiceField(label='County choice ')
+	zipCode = forms.CharField(label='Zip code',required=True)
+	#stateChoice = forms.ChoiceField(label='State choice ',)
+	#countyChoice = forms.ChoiceField(label='County choice ')
 
 	def __init__(self, req, *args, **kwargs):
 		super().__init__(*args)
-		print("__init__(1) req.state=",req.state)
-		if req.state != None:
-			self.fields['stateChoice'].choices=self.getStateChoices(req)
-			print("__init__(2) req.state=",req.state)
-			if len(req.state)==0:
-				req.state = self.fields['stateChoice'].choices[0][1]
-				print("__init__(3) req.state=",req.state)
-			self.fields['countyChoice'].choices=self.getCountyChoices(req)
-			print("self.fields['countyChoice'].choices=",self.fields['countyChoice'].choices)	
+		#print("__init__(1) req.state=",req.state)
+		#if req.state != None:
+		#	self.fields['stateChoice'].choices=self.getStateChoices(req)
+		#	print("__init__(2) req.state=",req.state)
+		#	if len(req.state)==0:
+		#		req.state = self.fields['stateChoice'].choices[0][1]
+		#		print("__init__(3) req.state=",req.state)
+		#	self.fields['countyChoice'].choices=self.getCountyChoices(req)
+		#	print("self.fields['countyChoice'].choices=",self.fields['countyChoice'].choices)	
 			#self.fields['countyChoice'].choices=[('county', 'Kent'), ('county', 'New Castle'), ('county', 'Sussex')]
-		else:
-			req.state = self.fields['stateChoice'].choices[0][1]
-			print("ZipCodeForm() __init__, req.state=",req.state)
-			self.fields['countyChoice'].choices=self.getCountyChoices(req)
+		#else:
+		#	req.state = self.fields['stateChoice'].choices[0][1]
+		#	print("ZipCodeForm() __init__, req.state=",req.state)
+		#	self.fields['countyChoice'].choices=self.getCountyChoices(req)
 
 
 	def getStateChoices(self,req):
@@ -36,6 +36,7 @@ class ZipCodeForm(forms.Form):
 		"""
 		dictStates = retrieveDBdata2(req,sql,None)
 		return self.convertDictionaryToListOfTuples(dictStates)
+		#return (('Alabama', 'Kent'), ('Delaware', 'New Castle'), ('county', 'Sussex'))
 
 	def getCountyChoices(self,req):
 		from . views import retrieveDBdata2
@@ -60,10 +61,10 @@ class ZipCodeForm(forms.Form):
 		dictCounties = retrieveDBdata2(req,sql,req.STATE_ONLY)
 		return dictCounties
 
-	def setCountyChoices(self,req):
-		self.fields['countyChoice'].choices=self.getCountyChoices(req)
+	#def setCountyChoices(self,req):
+	#	self.fields['countyChoice'].choices=self.getCountyChoices(req)
 		#self.fields['countyChoice'].choices=[('county', 'Kent'), ('county', 'New Castle'), ('county', 'Sussex')]
-		print("setCountyChoices() self.fields['countyChoice'].choices=",self.fields['countyChoice'].choices)
+	#	print("setCountyChoices() self.fields['countyChoice'].choices=",self.fields['countyChoice'].choices)
 
 
 	def convertDictionaryToListOfTuples(self, dictionaryList):
