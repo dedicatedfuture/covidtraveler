@@ -110,6 +110,9 @@ input[type="submit"]{
 #id_stateChoice{
   color: black;
 }
+#id_countyChoice{
+  color: black;
+}
 
 .footer {
   position: fixed;
@@ -141,6 +144,11 @@ input[type="submit"]{
   margin: 30px auto;
   padding: 20px;
 }
+.errorMessageSearchResults{
+  padding: 100px 10px 20px 10px;
+  font-size: 20px;
+  color: black;
+}
 .mainTable{
   background-color: #ffd166;
 }
@@ -160,11 +168,17 @@ input[type="submit"]{
 
 /* Base About Template*/
 .aboutOuter{
-  padding: 150px 30px 30px 30px;
+  padding: 150px 30px 300px 30px;
   background-color: #ffd166;
+  
 }
 
 /* Base Contact Us Template*/
+
+#contactusOuter {
+  padding: 100px 30px 300px 30px;
+  background-color: #ffd166;
+}
 
 /* Base News Template*/
 .news-header{
@@ -207,6 +221,24 @@ input[type="submit"]{
 .rows a:hover {
   color: #06d6a0;
   transform: scale(1.2);
+}
+
+/*error template*/
+.error{
+  display:flex;
+  justify-content: center;
+  
+}
+.button1{
+   background-color: #073B4C; 
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 12px;
 }
 
 /* Media Queries*/

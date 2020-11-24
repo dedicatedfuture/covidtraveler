@@ -16,34 +16,59 @@ def index(request):
 	if request.method == 'POST':
 		img2=img1="data:image/png;base64,"
 		req = Request(request)
-		if req.search_type()==req.STATE_COUNTY:
-			pass
-		elif req.search_type()==req.STATE_ONLY:
-			pass
-		elif req.search_type()==req.ZIPCODE:
-			req.state = getState(req)
-		print ("req=",req)
-		img1+=generatePieGraphic(req)
-		img2+=generateStackPlot(req)
-		img3,img4 = generateDualPlotCases(req)
-		context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4}
-		return render(request, "pages/search_results.html", context)
+		#print("index()#1 request.method=",request.method, "req.state=",req.state, "req= ", 
+		#	req.__dict__, "req values: ", request.POST.get('stateChoice'))
+
+		#data sanity check - if data available for request then prepare search_results page
+		if isDataAvailableForRequest(req):
+			img1+=generatePieGraphic(req)
+			img2+=generateStackPlot(req)
+			#print("index()#2 request.method=",request.method, "req.state=",req.state)
+			img3, img4 = generateDualPlotCases(req)
+			msg_text = getMessagesForRequest(req)
+			if msg_text == None:
+				msg_text = ''
+			context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4, 'msg_text': msg_text, 'current_state' : req.state}
+			return render(request, "pages/search_results.html", context)		
+		else:	#populate error page
+			err_msg = 'No data found for zipcode ' + req.zip 
+			context = {'err_msg': err_msg}
+			return render(request, 'pages/errorpage.html', context)
 	
-	else: # home page was just invoked, so initialize
+	else: # home page was just invoked, so initialize the form and render
 		# this code renders the form that gets user input
 		req = Request(request)
-		print("request.method=",request.method)
+		#print("index() request.method=",request.method, "req=",req)
 		form = ZipCodeForm(req) 
 		context={'form': form}		
 		return render(request, 'base.html', context)
 
+def isDataAvailableForRequest(req):
+	sql="""
+	SELECT count(*) as RowCnt
+	FROM covidtraveler_db.covid_finalmaster_table
+	WHERE fips IN 
+	(SELECT distinct STcountyFIPS 
+	FROM covidtraveler_db.US_ZIP_FIPS 
+	WHERE zip = %s);
+	"""
+	result = retrieveDBdata2(req,sql,req.ZIPCODE)
+	#print ("isDataAvailableForRequest() result=",result, " count=",result[0]['RowCnt'])
+	if (result[0]['RowCnt'] >0 ):
+		return True
+	else:
+		return False
+
 def get_county(request):
-	if request.method =='POST':
+	from django.http import JsonResponse
+	if request.method =='POST' and request.is_ajax():
 		req = Request(request)
-		print("request.method=",request.method)
-		form = ZipCodeForm(req) 
-		context={'form': form}		
-		return render(request, 'base.html', context)
+		form = ZipCodeForm(req)
+		retval = form.getCountyChoicesAsDict(req)
+		#print("get_county() retval1=",retval)
+		return JsonResponse(retval, safe=False)
+		#return JsonResponse({'countyChoice': 'Sussex'})	# this is a hard coded response to test returning data to the ajax response
+		
 
 def errorpage(request):
 	return render(request, 'pages/errorpage.html')
@@ -55,7 +80,7 @@ def contactus(request):
 		if form.is_valid():
 			name = form.cleaned_data['name']
 			email = form.cleaned_data['email']
-			print(name, email)
+			#print(name, email)
 			form.save()
 	form = ContactUsForm()
 	return render(request, 'pages/contactus.html', {'form':form})
@@ -65,8 +90,8 @@ def news(request):
 	feed = feedparser.parse(url)
 	for item in feed.entries:
 		item.published = item.published[0:16]
-		print(item.published[0:16])
-		print(type(item))
+		#print(item.published[0:16])
+		#print(type(item))
 	
 	return render(request, 'pages/newsarticles.html', {
 		'feed':feed
@@ -78,35 +103,150 @@ def about(request):
 def search_results(request):
 	return render(request, "pages/search_results.html")
 
+def retrieveDBdata(req,sql):
+	"""
+	Uses Request object to determine the type of request is being processed - this controls how the parameters are passed to the sql 
+	"""
+	from django.db import connection
+
+	with connection.cursor() as cursor:
+		if req.search_type() == req.ZIPCODE:
+			cursor.execute(sql, [req.zip])
+		elif req.search_type() == req.STATE_COUNTY:		
+			data = [req.county,req.state]
+			cursor.execute(sql, data)
+		elif req.search_type() == req.STATE_ONLY:		
+			data = [req.state]
+			cursor.execute(sql, data)		
+		elif req.search_type() == req.COUNTY_ONLY:		
+			data = [req.county]
+			cursor.execute(sql, data)		
+		else:
+			cursor.execute(sql)
+		#print("retrieveDBdata() req.search_type()=",req.search_type(), "=sql=",sql )
+	return  dictFetchRows(cursor)
+
+def retrieveDBdata2(req,sql,reqType):
+	"""
+	... 
+	"""
+	from django.db import connection
+
+	if reqType == req.ZIPCODE:
+		data = req.zip
+	elif reqType in (req.STATE_COUNTY, req.STATE_ONLY):
+		data = req.state
+	elif reqType == req.COUNTY_ONLY:
+		data = req._county_
+	else:	# just execute the SQL, no params
+		#print ("retrieveDBdata2 data=None, sql=",sql)
+		with connection.cursor() as cursor:
+			cursor.execute(sql)
+		return dictFetchRows(cursor)
+	#print("retrieveDBdata2() data=",data, "sql=",sql)
+	with connection.cursor() as cursor:
+		cursor.execute(sql, [data])
+	return  dictFetchRows(cursor)
+
+def dictFetchRows(cursor):
+	"""
+	Return all rows from cursor as a list of dictionaries
+	"""
+	columns = [col[0] for col in cursor.description]
+	#print ("columns=",columns,"rows=",cursor.rowcount)
+	result_list=list()
+	for row in cursor:
+		res=dict()
+		for i in range(len(columns)):
+			key=columns[i]
+			res[key] = row[i] 
+		result_list.append(res)
+	return result_list
+
+def getMessagesForRequest(req):
+	"""
+	Returns any messages for the request - these are maintained in the database.
+	"""
+	if req.search_type()==req.ZIPCODE:
+		sql="""
+		select distinctrow zm.zipcode, mt.msg_text 
+		from zips_msgs zm
+		inner join msg_text mt on zm.msg_id = mt.msg_id
+		where zm.zipcode = %s;
+		"""
+		#print("getMessagesForRequest() here")
+		request_data = retrieveDBdata2(req,sql,req.ZIPCODE)
+		#print("getMessagesForRequest() request_data(zip)=",request_data)
+		msg = [d.get('msg_text', None) for d in request_data]
+		if msg!=None:
+			if len(msg)>0:
+				# get list of counties where the zip code exists
+				retVal = msg[0] + " Counties that contain zipcode " + req._zip_ + " include : " + getCountyListForZipcode(req) 
+				return retVal
+			else:
+				return None
+		else:
+			return None
+
+	else: # defaulting to a county name search 
+		sql="""
+		select fc.county_name, fc.fips, mt.msg_text 
+		from fips_county fc
+		inner join fips_msgs fm on fm.fips = fc.fips
+		inner join msg_text mt on mt.msg_id = fm.msg_id
+		where fc.county_name = %s
+		"""
+		request_data = retrieveDBdata2(req,sql,req.COUNTY_ONLY)
+		#print("getMessagesForRequest() request_data(county)=",request_data)
+
+def getCountyListForZipcode(req):
+	"""
+	Obtain unique list of counties for zip code passed in the Request object
+	"""
+	sql="""
+	SELECT distinct CountyName FROM covidtraveler_db.US_ZIP_FIPS
+	where zip = %s;
+	"""
+	county_list = retrieveDBdata2(req,sql,req.ZIPCODE)
+	county_names = [d.get('CountyName', None) for d in county_list]
+	if county_names!=None:
+		return str(county_names)
+	else:
+		return None
+
 def generatePieGraphic(request):
 	# Pie chart, where the slices will be ordered and plotted counter-clockwise:
 	# make a square figure and axes
 
 	if request.search_type()==request.ZIPCODE:
-		sql = """SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
+		sql = """
+			SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
 			SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased 
 			FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS)) 
 			WHERE uzf.zip = %s 
-			GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state """
+			GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state 
+			"""
 	if request.search_type()==request.STATE_COUNTY:
-		sql = """SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
-                SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased
-                FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS))
-                WHERE uzf.CountyName = %s
-                and uzf.State = %s
-                GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state;"""
+		sql = """
+			SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
+			SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased
+			FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS))
+			WHERE uzf.CountyName = %s
+			and uzf.State = %s
+			GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state;
+			"""
 
 	request_data = retrieveDBdata(request,sql) 
-	print("generatePieGraphic SQL=",sql)
-	print("request_data=",request_data)
+	#print("generatePieGraphic SQL=",sql)
+	#print("request_data=",request_data)
 
 	# can only generate graph if data available
 	if len(request_data) > 0:
 		labels = 'Cases', 'Deceased'
-		for i in range(len(request_data)):
-			print ("request_data=",request_data[i])
+		#for i in range(len(request_data)):
+			#print ("request_data=",request_data[i])
 		county = request_data[0]['County']
-		print ("county=",county)
+		#print ("county=",county)
 
 		#  case = 100*(Cases-Deceased)/Cases
 		case = 100*(int(request_data[0]['Cases'])-int(request_data[0]['Deceased']))/int(request_data[0]['Cases'])
@@ -130,7 +270,7 @@ def generatePieGraphic(request):
 		plt.savefig(buf, transparent = True, format="png")
 		buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
 	else:
-		buf_base64 = ''
+		buf_base64 = None
 	return buf_base64
 
 def generateStackPlot(request):
@@ -165,8 +305,8 @@ def generateStackPlot(request):
 		FIPS = [d['FIPS'] for d in request_data if 'FIPS' in d]
 		# reduce list of FIPS values to unique set (becomes a dictionary)
 		FIPS=list(dict.fromkeys(FIPS))
-		for i in FIPS:
-			print("FIPS=",i)
+		#for i in FIPS:
+			#print("FIPS=",i)
 		
 		# start new row list that will contain only the FIPS to be graphed - this currently constrains to the first FIPS found, and
 		# msg text will be provided explaining to the user that they need to search additional counties within the state for more information
@@ -190,6 +330,10 @@ def generateStackPlot(request):
 		state=set(state)
 		# convert the dictionary back to a list structure
 		state=list(state)
+
+		#!!!fugly code alert!!!
+		request.state = state #this is a fudge - should not need this here!!
+		#!!!fugly code alert!!!
 
 		population = {
 			'Cases': cases,
@@ -218,6 +362,7 @@ def generateDualPlotCases(req):
 	# Dual plot chart to compare two related data items that occur with different scaling
 	import numpy as np
 	#First, retrieve query data from request
+	#print("generateDualPlotCases() here")
 
 	if req.search_type()==req.ZIPCODE:
 		sql = """
@@ -264,8 +409,8 @@ def generateDualPlotCases(req):
 		FIPS = [d['FIPS'] for d in county_data if 'FIPS' in d]
 		# reduce list of FIPS values to unique set (becomes a dictionary)
 		FIPS=list(dict.fromkeys(FIPS))
-		for i in FIPS:
-			print("FIPS=",i)
+		#for i in FIPS:
+			#print("FIPS=",i)
 		
 		# start new row list that will contain only the FIPS to be graphed - this currently constrains to the first FIPS found, and
 		# msg text will be provided explaining to the user that they need to search additional counties within the state for more information
@@ -301,7 +446,7 @@ def generateDualPlotCases(req):
 		state_deceased = [d['Deceased'] for d in state_data if 'Deceased' in d]
 		state_deceased_min=min(state_deceased)
 		state_deceased_max=max(state_deceased)
-		print("state_deceased_min=",state_deceased_min,"state_deceased_max=",state_deceased_max,"state_deceased=",state_deceased)
+		#print("state_deceased_min=",state_deceased_min,"state_deceased_max=",state_deceased_max,"state_deceased=",state_deceased)
 		
 		# cases graphs
 		plt.ioff()	
@@ -344,7 +489,7 @@ def generateDualPlotCases(req):
 		else:
 				ticks=1
 		axs_deceased[0].set_yticks(np.arange(county_deceased_min, county_deceased_max, ((county_deceased_max-county_deceased_min)//ticks)))
-		print("county_deceased_min=",county_deceased_min,"county_deceased_max=",county_deceased_max,"ticks=",ticks)
+		#print("county_deceased_min=",county_deceased_min,"county_deceased_max=",county_deceased_max,"ticks=",ticks)
 		axs_deceased[0].set_ylim(county_deceased_min, county_deceased_max*1.1)
 
 		axs_deceased[1].plot(t, state_deceased)
@@ -369,64 +514,5 @@ def generateDualPlotCases(req):
 		cases_graph = ''
 		deceased_graph = ''
 	return cases_graph, deceased_graph
-
-def retrieveDBdata(req,sql):
-	"""
-	Uses request.POST.get("zipCode")).values() to get value of zip code to use as param for query 
-	"""
-	from django.db import connection
-	# data = request.POST.get("zipCode")
-
-	with connection.cursor() as cursor:
-		if req.search_type() == req.ZIPCODE:
-			cursor.execute(sql, [req.zip])
-		elif req.search_type() in (req.STATE_COUNTY, req.STATE_ONLY):		
-			data = [req.county,req.state]
-			cursor.execute(sql, data)
-		else:
-			cursor.execute(sql)
-		print("retrieveDBdata() req.search_type()=",req.search_type(), "=sql=",sql )
-	return  dictFetchRows(cursor)
-
-def retrieveDBdata2(req,sql,reqType):
-	"""
-	... 
-	"""
-	from django.db import connection
-
-	if reqType == req.ZIPCODE:
-		data = req.zip
-	elif reqType in (req.STATE_COUNTY, req.STATE_ONLY):
-		data = req.state
-
-	with connection.cursor() as cursor:
-		cursor.execute(sql, [data])
-	return  dictFetchRows(cursor)
-
-def dictFetchRows(cursor):
-	"""
-	Return all rows from cursor as a list of dictionaries
-	"""
-	columns = [col[0] for col in cursor.description]
-	print ("columns=",columns,"rows=",cursor.rowcount)
-	result_list=list()
-	#rowcnt=0 	
-	for row in cursor:
-		res=dict()
-		for i in range(len(columns)):
-			key=columns[i]
-			res[key] = row[i] 
-		result_list.append(res)
-	#print ("result_list=",result_list)
-	return result_list
-
-def getState(req):
-	sql="""
-	SELECT distinct snx.state_fullname as state
-	FROM covidtraveler_db.state_name_xref snx 
-	inner join covidtraveler_db.US_ZIP_FIPS ufz on snx.state_abbrev = ufz.State
-	where ufz.zip = %s;
-	"""
-	return retrieveDBdata2(req,sql,req.ZIPCODE)[0]['state']
 
 

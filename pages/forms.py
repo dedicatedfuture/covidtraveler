@@ -1,32 +1,71 @@
 from django import forms
 from pages.models import Feedback
 
-
-
 class ZipCodeForm(forms.Form):
-	zipCode = forms.CharField(label='Zip code')
-	stateChoice = forms.ChoiceField(label='State choice: ')
-	#countyChoice = forms.ChoiceField(label='County choice: ')
+	zipCode = forms.CharField(label='Zip code',required=True)
+	#stateChoice = forms.ChoiceField(label='State choice ',)
+	#countyChoice = forms.ChoiceField(label='County choice ')
 
 	def __init__(self, req, *args, **kwargs):
 		super().__init__(*args)
-		self.fields['stateChoice'].choices=self.setStateChoices(req)
-		#self.fields['countyChoice'].choices=self.setCountyChoices(req)
+		#print("__init__(1) req.state=",req.state)
+		#if req.state != None:
+		#	self.fields['stateChoice'].choices=self.getStateChoices(req)
+		#	print("__init__(2) req.state=",req.state)
+		#	if len(req.state)==0:
+		#		req.state = self.fields['stateChoice'].choices[0][1]
+		#		print("__init__(3) req.state=",req.state)
+		#	self.fields['countyChoice'].choices=self.getCountyChoices(req)
+		#	print("self.fields['countyChoice'].choices=",self.fields['countyChoice'].choices)	
+			#self.fields['countyChoice'].choices=[('county', 'Kent'), ('county', 'New Castle'), ('county', 'Sussex')]
+		#else:
+		#	req.state = self.fields['stateChoice'].choices[0][1]
+		#	print("ZipCodeForm() __init__, req.state=",req.state)
+		#	self.fields['countyChoice'].choices=self.getCountyChoices(req)
 
-	def setStateChoices(self,req):
+
+	def getStateChoices(self,req):
 		"""
 		Obtains a list of unique state abbreviations and populates the stateChoice form
 		"""
-		from . views import retrieveDBdata
-		sql = "select distinct state from covidtraveler_db.US_ZIP_FIPS;"
-		dictStates = retrieveDBdata(req,sql)
+		from . views import retrieveDBdata2
+		sql = """
+		SELECT distinct state_fullname 
+		FROM covidtraveler_db.state_name_xref
+		order by state_fullname;
+		"""
+		dictStates = retrieveDBdata2(req,sql,None)
 		return self.convertDictionaryToListOfTuples(dictStates)
+		#return (('Alabama', 'Kent'), ('Delaware', 'New Castle'), ('county', 'Sussex'))
 
-	def setCountyChoices(self,req):
-		from . views import retrieveDBdata
-		sql = "select distinct county from covidtraveler_db.US_ZIP_FIPS;"
-		dictCounties = retrieveDBdata(req,sql)
+	def getCountyChoices(self,req):
+		from . views import retrieveDBdata2
+		sql = """
+		SELECT county_basename as county
+		FROM covidtraveler_db.fips_county_state_names
+		WHERE state_fullname = %s;
+		"""
+		print("setCountyChoices req.state=",req.state," county query: ", sql)
+		dictCounties = retrieveDBdata2(req,sql,req.STATE_ONLY)
+		#print("county dictcounties: ", dictCounties)
 		return self.convertDictionaryToListOfTuples(dictCounties)
+
+	def getCountyChoicesAsDict(self, req):
+		from . views import retrieveDBdata2
+		sql = """
+		SELECT county_basename as county
+		FROM covidtraveler_db.fips_county_state_names
+		WHERE state_fullname = %s;
+		"""
+		print("setCountyChoices req.state=",req.state," county query: ", sql)
+		dictCounties = retrieveDBdata2(req,sql,req.STATE_ONLY)
+		return dictCounties
+
+	#def setCountyChoices(self,req):
+	#	self.fields['countyChoice'].choices=self.getCountyChoices(req)
+		#self.fields['countyChoice'].choices=[('county', 'Kent'), ('county', 'New Castle'), ('county', 'Sussex')]
+	#	print("setCountyChoices() self.fields['countyChoice'].choices=",self.fields['countyChoice'].choices)
+
 
 	def convertDictionaryToListOfTuples(self, dictionaryList):
 		"""
@@ -35,6 +74,7 @@ class ZipCodeForm(forms.Form):
 		tempList=list()
 		for i in range(len(dictionaryList)):
 			tempList.append(tuple(dictionaryList[i].items())[0])
+		#print ("convertDictionaryToListOfTuples() templist=",tempList)
 		return tempList
 
 class ContactUsForm(forms.ModelForm):

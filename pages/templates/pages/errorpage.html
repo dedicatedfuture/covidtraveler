@@ -5,6 +5,23 @@
 
 {% block content %}
 
-<h2 style="padding:200px">Error Page</h2>
+<div class="main-div-outer" style="background-image: url('{% static '/images/errorImage.png' %}')";>
+		
+    <div class="main-div-inner error">
+
+            <h2 class="headings">Something went wrong : </h2>
+
+            
+                {%csrf_token%}
+                
+                {{ err_msg }}
+                <br>
+                <br>
+                <br>
+                
+            <a href="{% url 'index' %}"><button class="button1">Try Again</button></a>
+        
+    </div>
+</div>	
 
 {% endblock content %}
