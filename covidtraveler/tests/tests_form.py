@@ -4,47 +4,44 @@ from pages.forms import ZipCodeForm
 from pages.forms import ContactUsForm
 from pages.request import Request
 
-class TestForms(SimpleTestCase):
+class TestForms(TestCase):
 
 	def setUp(self):
 		self.client = Client()
 		self.index = reverse('index')
-		response = self.client.post(self.index)
-		req = Request(response)
-		Request.objects.create(req, zipCode='19061', state='PA', county='Delaware')
+		
 
 	def test_zip_code_valid_data(self):
-		form = ZipCodeForm(data={
-			'zipCode': 19061,
-			'stateChoice': 'DE',
-			'countyChoice': 'Kent'
+		req = Request(self.client.post(self.index, {'zipCode': 19061}))
+		form = ZipCodeForm(req, data={
+			'zipCode': 19061
 			})
 		self.assertTrue(form.is_valid())
 
-	def test_getCountyChoices(self):
-		response = self.client.post(self.index)
-		req = Request(response)
-		form = ZipCodeForm(req, data={
-			'zipCode': 19061,
-			'stateChoice': 'DE',
-			'countyChoice': 'Kent'
-			})
-		form.getCountyChoices()
+	#def test_getCountyChoices(self):
+	#	response = self.client.post(self.index)
+	#	req = Request(response)
+	#	form = ZipCodeForm(req, data={
+	#		'zipCode': 19061,
+	#		'stateChoice': 'DE',
+	#		'countyChoice': 'Kent'
+	#		})
+	#	form.getCountyChoices()
 
-		self.assertEqual(form.getCountyChoices(), (('Alabama', 'Kent'), ('Delaware', 'New Castle'), ('county', 'Sussex')))
+	#	self.assertEqual(form.getCountyChoices(), (('Alabama', 'Kent'), ('Delaware', 'New Castle'), ('county', 'Sussex')))
 
 
 
 
 	def test_zip_code_form_no_data(self):
 		
-		response = client.post(index)
+		response = self.client.post(self.index)
 
 		req = Request(response)
 		form = ZipCodeForm(req, data={})
 
 		self.assertFalse(form.is_valid())
-		self.assertEquals(len(form.errors), 2)
+		self.assertEquals(len(form.errors), 1)
 
 	def test_contactus_valid_data(self):
 		form = ContactUsForm(data={
