@@ -9,7 +9,6 @@ class Persistance(ABC):
     """
     This is the abstract class for all persistence activity performed against a datastore.
     """
-
     # constants
     SQLDB=1
     FLAT_FILE=2
@@ -32,9 +31,9 @@ class PersistanceRequest:
     and parameters for use with a data store.
     """
     def __init__(self, *args, **kwargs ):
-        self._parseArgs_(*args, **kwargs)
+        self.__parseArgs(*args, **kwargs)
         
-    def _parseArgs_(self, *args, **kwargs):
+    def __parseArgs(self, *args, **kwargs):
         self.argList=args
         self.argDict=kwargs        
 
@@ -111,7 +110,6 @@ class DjangoDB(Persistance):
             rows=list()
             for row in cursor:
                 rows.append(row)
-            print("__fetchRowsAsTuples() rows=",rows)
             return columns, rows
         except:
             print ("DjangoDB.__fetchRowsAsTuples() - unexpected error: ",sys.exc_info()[0])

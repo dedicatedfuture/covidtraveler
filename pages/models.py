@@ -51,21 +51,90 @@ class CovidModel(ABC):
 
     TO_DATE_TOTALS_CASES_DECEASED = 1
     MONTHLY_TOTALS_CASES_DECEASED = 2
-    PAST_30_DAYS_CASES = 3
-    PAST_30_DAYS_DECEASED = 4
-    LOCATION_ZIPCODE = 5
-    LOCATION_COUNTY = 6
+    PAST_30_DAYS = 3
+    LOCATION_ZIPCODE = 4
+    LOCATION_COUNTY = 5
+    LOCATION_STATE = 6
+    MESSAGES = 7
+    ZIP_MULTIPLE_COUNTIES = 8
 
     persist = DjangoDB()
 
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-    def __getData(self, *args, **kwargs):
+    def getData(self, *args, **kwargs):
         raise NotImplementedError
 
 
+class CovidModelFactory(CovidModel):
+    """
+    This concrete class uses a simple parameterized approach to constructing the required CovidData subclass
+    needed by the consumer.
+    """
+    def __init__(self, *args, **kwargs):
+        self.__createCovidModelInstance(*args, **kwargs)
+
+    def __getData(self, *args, **kwargs):
+        pass
+
+    def __isDataAvailable(self, CovidData):
+        """
+        docstring
+        """
+        try:
+            if self.CovidData != None:
+                if self.CovidData == []:
+                    return False
+                if len(self.CovidData[0])>0:
+                    return True                    
+            else:
+                return False
+        except:
+            print ("CovidMessages.__isDataAvailable() - unexpected error: ",sys.exc_info()[0])
+            return False    
+
+    
+    def __createCovidModelInstance(self, *args, **kwargs):
+        """
+        Use the args to identify the ideal class
+        """
+        try:
+            if 'MODEL_TYPE' in kwargs:
+                if kwargs['MODEL_TYPE'] == CovidModel.TO_DATE_TOTALS_CASES_DECEASED:
+                    covidModel = CovidAggregateTotals()                   
+                    self.CovidData = covidModel.getData(*args,**kwargs)
+                    self.DataAvailable=self.__isDataAvailable(self.CovidData)
+                    return self.CovidData
+                    
+                if kwargs['MODEL_TYPE'] == CovidModel.MONTHLY_TOTALS_CASES_DECEASED:
+                    covidModel = CovidMonthlyTotals()                   
+                    self.CovidData = covidModel.getData(*args,**kwargs)
+                    self.DataAvailable=self.__isDataAvailable(self.CovidData)
+                    return self.CovidData                    
+
+                if kwargs['MODEL_TYPE'] == CovidModel.PAST_30_DAYS:
+                    covidModel = CovidDailyTotals()                   
+                    self.CovidData = covidModel.getData(*args,**kwargs)
+                    self.DataAvailable=self.__isDataAvailable(self.CovidData)
+                    return self.DataAvailable, self.CovidData 
+
+                if kwargs['MODEL_TYPE'] == CovidModel.MESSAGES:
+                    covidModel = CovidMessages()                   
+                    self.CovidData = covidModel.getData(*args,**kwargs)
+                    self.DataAvailable=self.__isDataAvailable(self.CovidData)
+                    return self.DataAvailable, self.CovidData 
+
+            print ("CovidMessages.__createCovidModelInstance() - did not receive a recognizable model type - no model object instantiated. Args received = ",kwargs)
+            return None
+        except:
+            print ("CovidMessages.__createCovidModelInstance() - unexpected error: ",sys.exc_info()[0])
+            return None    
+
 class CovidMessages(CovidModel):
+    """
+    Note - all SQLs must return a column named 'msg_text' for this class to return a result. That column will contain the text that will be returned for display
+    """
     __argList = []
     __argDict = {} 
     __sql = ''
@@ -83,6 +152,7 @@ class CovidMessages(CovidModel):
 		inner join msg_text mt on zm.msg_id = mt.msg_id
 		where zm.zipcode = %s;
 		"""
+
        	self._sqlCountyMsgs_="""
 		select fc.county_name, fc.fips, mt.msg_text 
 		from fips_county fc
@@ -90,19 +160,23 @@ class CovidMessages(CovidModel):
 		inner join msg_text mt on mt.msg_id = fm.msg_id
 		where fc.county_name = %s
 		"""
+        
+        self._sqlZipCounties_="""
+        SELECT distinct CountyName as msg_text FROM covidtraveler_db.US_ZIP_FIPS
+        where zip = %s;
+        """
 
     def __getData(self, *args, **kwargs):
         try:
-            self.dbReq = PersistanceRequest(ReturnType=DjangoDB.DICTIONARIES, SQL=kwargs['SQL'], whereParams=[kwargs['whereParams']])
-            return self.persist.getData(self.dbReq)
+            # self.dbReq = PersistanceRequest(ReturnType=DjangoDB.DICTIONARIES, SQL=kwargs['SQL'], whereParams=[kwargs['whereParams']])
+            # return self.persist.getData(self.dbReq)
+            self.dbReq = PersistanceRequest(ReturnType=kwargs['ReturnType'], SQL=self.__sql, whereParams=self.__data)
+            return CovidModel.persist.getData(self.dbReq)           
         except:
             print ("CovidMessages._getData_() - unexpected error: ",sys.exc_info()[0])
             return None        
-        
-    def dataAvailableForRequest(self, *args, **kwargs):
-        pass
 
-    def getMessages(self, *args, **kwargs):
+    def getData(self, *args, **kwargs):
         try:
             if 'ZIPCODE' in kwargs:                
                 self.__sql=self._sqlZipMsgs_
@@ -111,12 +185,16 @@ class CovidMessages(CovidModel):
             elif 'STATE' in kwargs and 'COUNTY' in kwargs: #only interested in case where both are populated
                 self.__sql=self._sqlCountyMsgs_
                 self.__data=[kwargs['STATE'],kwargs['COUNTY']]
-            
+
+            elif 'ZIPCODE_COUNTIES' in kwargs: 
+                self.__sql=self._sqlZipCounties_
+                self.__data=[kwargs['ZIPCODE_COUNTIES']]
+
             else:
-                print ("CovidMessages.getMessages() - missing expected keys ZIPCODE or STATE/COUNTY combination in argument list - received: ",kwargs)
+                print ("CovidMessages.getData() - missing expected keys ZIPCODE or STATE/COUNTY combination in argument list - received: ",kwargs)
                 return None
             
-            self.result = self.__getData(SQL=self.__sql, whereParams=self.__data)
+            self.result = self.__getData(SQL=self.__sql, whereParams=self.__data, **kwargs)
             self.__msg = [d.get('msg_text', None) for d in self.result]
 
             if self.__msg != None:
@@ -124,46 +202,10 @@ class CovidMessages(CovidModel):
             else:
                 return None
         except:
-            print ("CovidMessages.getMessages() - unexpected error: ",sys.exc_info()[0])
+            print ("CovidMessages.getData() - unexpected error: ",sys.exc_info()[0])
             return None
 
-class CovidDataFactory(CovidModel):
-    """
-    This concrete class uses a simple parameterized approach to constructing the required CovidData subclass
-    needed by the consumer.
-    """
-    def __init__(self, *args, **kwargs):
-        self.__createCovidClassInstance(*args, **kwargs)
-
-    def __getData(self, *args, **kwargs):
-        pass
-
-    def __createCovidClassInstance(self, *args, **kwargs):
-        """
-        Use the args to identify the ideal class
-        """
-        try:
-            if 'MODEL_TYPE' in kwargs:
-                if kwargs['MODEL_TYPE'] == CovidModel.TO_DATE_TOTALS_CASES_DECEASED:
-                    covidModel = CovidTotalsToDate()                   
-                    self.result = covidModel.getData(*args,**kwargs)
-                    return self.result
-                    
-                if kwargs['MODEL_TYPE'] == CovidModel.MONTHLY_TOTALS_CASES_DECEASED:
-                    print ("CovidDataFactory._createCovidClassInstance_() MONTHLY_TOTALS_CASES_DECEASED report selected")
-
-                if kwargs['MODEL_TYPE'] == CovidModel.PAST_30_DAYS_CASES:
-                    print ("CovidDataFactory._createCovidClassInstance_() PAST_30_DAYS_CASES report selected")
-
-                if kwargs['MODEL_TYPE'] == CovidModel.PAST_30_DAYS_DECEASED:
-                    print ("CovidDataFactory._createCovidClassInstance_() PAST_30_DAYS_DECEASED report selected")
-
-            return "done"
-        except:
-            print ("CovidMessages.__getData() - unexpected error: ",sys.exc_info()[0])
-            return None    
-
-class CovidTotalsToDate(CovidModel):
+class CovidAggregateTotals(CovidModel):
     __sql = ''
     __data = None
 
@@ -189,12 +231,15 @@ class CovidTotalsToDate(CovidModel):
         """
         docstring
         """
-        print("CovidTotalsToDate getData()  kwargs=", kwargs)
+        print("CovidAggregateTotals getData()  kwargs=", kwargs)
         return self.__getData(self, *args, **kwargs)
 
     def __getData(self, *args, **kwargs):
+        """
+        docstring
+        """        
         try:
-            print("CovidTotalsToDate __getData()  kwargs=", kwargs)
+            print("CovidAggregateTotals __getData()  kwargs=", kwargs)
             if 'LOCATION' in kwargs:
                 
                 if kwargs['LOCATION']==CovidModel.LOCATION_ZIPCODE:
@@ -209,14 +254,141 @@ class CovidTotalsToDate(CovidModel):
                     retType=kwargs['ReturnType']
 
                 self.dbReq = PersistanceRequest(ReturnType=retType, SQL=self.__sql, whereParams=self.__data)
+
                 return CovidModel.persist.getData(self.dbReq)            
             else:
-                print ("CovidTotalsToDate.__getData() - LOCATION param not provided, received: ", kwargs)
+                print ("CovidAggregateTotals.__getData() - LOCATION param not provided, received: ", kwargs)
                 return None       
             return None
         except:
-            print ("CovidTotalsToDate.__getData() - unexpected error: ",sys.exc_info()[0])
+            print ("CovidAggregateTotals.__getData() - unexpected error: ",sys.exc_info()[0])
             return None        
         
+class CovidMonthlyTotals(CovidModel):
+    __sql = ''
+    __data = None
 
+    __sqlZipTotals = """
+        SELECT monthname(cft.last_update) as Month_part, STcountyFIPS as FIPS, cft.county,  cft.province_state as state, cft.confirmed as Cases, cft.deaths as Deceased
+        FROM covidtraveler_db.covid_finalmaster_table cft inner join covidtraveler_db.US_ZIP_FIPS uzf
+        on cft.FIPS = uzf.STcountyFIPS
+        where dayofmonth(cft.last_update)=1
+        and uzf.zip = %s
+        order by STcountyFIPS, cft.last_update; 
+        """
+    __sqlStateCountyTotals = """
+        SELECT monthname(cft.last_update) as Month_part, cft.FIPS, cft.county,  cft.province_state as state, cft.confirmed as Cases, cft.deaths as Deceased
+        FROM covidtraveler_db.covid_finalmaster_table cft 
+        where dayofmonth(cft.last_update)=1
+        and cft.county = %s
+        and cft.province_state = %s
+        order by cft.FIPS, cft.last_update; 
+        """
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+    def getData(self, *args, **kwargs):
+        """
+        docstring
+        """
+        print("CovidMonthlyTotals getData()  kwargs=", kwargs)
+        return self.__getData(self, *args, **kwargs)
+
+    def __getData(self, *args, **kwargs):
+        try:
+            print("CovidMonthlyTotals __getData()  kwargs=", kwargs)
+            if 'LOCATION' in kwargs:
+                
+                if kwargs['LOCATION']==CovidModel.LOCATION_ZIPCODE:
+                    self.__sql = self.__sqlZipTotals
+                    self.__data = [kwargs['ZIPCODE']]
+                
+                elif kwargs['LOCATION']==CovidModel.LOCATION_COUNTY:
+                    self.__sql = self.__sqlStateCountyTotals
+                    self.__data = [kwargs['STATE'],kwargs['COUNTY']]
+
+                if 'ReturnType' in kwargs:
+                    retType=kwargs['ReturnType']
+
+                self.dbReq = PersistanceRequest(ReturnType=retType, SQL=self.__sql, whereParams=self.__data)
+
+                return CovidModel.persist.getData(self.dbReq)            
+            else:
+                print ("CovidMonthlyTotals.__getData() - LOCATION param not provided, received: ", kwargs)
+                return None       
+            return None
+        except:
+            print ("CovidMonthlyTotals.__getData() - unexpected error: ",sys.exc_info()[0])
+            return None  
  
+class CovidDailyTotals(CovidModel):
+    __sql = ''
+    __data = None
+
+    __sqlZipTotals = """
+        SELECT cft.province_state as state, cft.FIPS, cft.county, cft.last_update as event_day, 
+            cft.daily_confirmed_case as Cases, cft.daily_deaths_case as Deceased
+        FROM covidtraveler_db.covid_finalmaster_table cft inner join covidtraveler_db.US_ZIP_FIPS uzf
+        ON cft.FIPS = uzf.STcountyFIPS
+        where cft.last_update between date_sub(curdate(), INTERVAL 30 DAY) and curdate()
+        and uzf.zip = %s
+        order by cft.FIPS, cft.last_update;
+        """
+
+    __sqlStateCountyTotals = """
+        SELECT cft.province_state as state, cft.FIPS, cft.county, cft.last_update as event_day, 
+            cft.daily_confirmed_case as Cases, cft.daily_deaths_case as Deceased
+        FROM covidtraveler_db.covid_finalmaster_table cft 
+        WHERE cft.province_state = %s
+        and cft.county = %s
+        order by cft.FIPS, cft.last_update;        
+        """
+
+    __sqlStateOnlyTotals = """
+ 		SELECT cft.province_state as state, cft.last_update as event_day, sum(cft.daily_confirmed_case) as Cases, sum(cft.daily_deaths_case) as Deceased
+		FROM covidtraveler_db.covid_finalmaster_table cft 
+		where cft.last_update between date_sub(curdate(), INTERVAL 30 DAY) and curdate()
+		and cft.province_state = %s
+		group by cft.province_state, cft.last_update;
+        """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+    def getData(self, *args, **kwargs):
+        """
+        docstring
+        """
+        print("CovidMonthlyTotals getData()  kwargs=", kwargs)
+        return self.__getData(self, *args, **kwargs)
+
+    def __getData(self, *args, **kwargs):
+        try:
+            print("CovidMonthlyTotals __getData()  kwargs=", kwargs)
+            if 'LOCATION' in kwargs:
+                
+                if kwargs['LOCATION']==CovidModel.LOCATION_ZIPCODE:
+                    self.__sql = self.__sqlZipTotals
+                    self.__data = [kwargs['ZIPCODE']]
+                
+                elif kwargs['LOCATION']==CovidModel.LOCATION_COUNTY:
+                    self.__sql = self.__sqlStateCountyTotals
+                    self.__data = [kwargs['STATE'],kwargs['COUNTY']]
+
+                elif kwargs['LOCATION']==CovidModel.LOCATION_STATE:
+                    self.__sql = self.__sqlStateOnlyTotals
+                    self.__data = [kwargs['STATE']]                
+                    
+                if 'ReturnType' in kwargs:
+                    retType=kwargs['ReturnType']
+
+                self.dbReq = PersistanceRequest(ReturnType=retType, SQL=self.__sql, whereParams=self.__data)
+
+                return CovidModel.persist.getData(self.dbReq)            
+            else:
+                print ("CovidMonthlyTotals.__getData() - LOCATION param not provided, received: ", kwargs)
+                return None       
+            return None
+        except:
+            print ("CovidMonthlyTotals.__getData() - unexpected error: ",sys.exc_info()[0])
+            return None 

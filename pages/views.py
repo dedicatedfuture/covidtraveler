@@ -2,15 +2,15 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest
 from . request import Request
 import feedparser, matplotlib.pyplot as plt, base64
-from io import StringIO, BytesIO
-from PIL import Image
 from matplotlib.patches import Shadow
+from PIL import Image
+from io import StringIO, BytesIO
 from django.db import connection
 from . forms import ZipCodeForm, ContactUsForm
 from . persistence import DjangoDB, PersistanceRequest
-from . models import CovidMessages, CovidDataFactory, CovidModel
+from . models import CovidMessages, CovidModelFactory, CovidModel
 import feedparser
-from django.core.handlers.wsgi import WSGIRequest
+
 
 
 	# Create your views here.
@@ -48,43 +48,130 @@ def index(request):
 		# get list of messages for ZIPCODE
 		#print("covidMsg.getMessages(ZIPCODE=req.zip) =",covidMsg.getMessages(ZIPCODE=req.zip))
 		
-		covidMsg=CovidMessages()
-		msg_text = covidMsg.getMessages(ZIPCODE=req.zip)
-		print("index() msg_text=",msg_text)
+		# covidMsg=CovidMessages()
+		# msg_text = covidMsg.getMessages(ZIPCODE=req.zip)
+		# print("index() msg_text=",msg_text)
 
 		"""
 		TO_DATE_TOTALS_CASES_DECEASED = 1
 		MONTHLY_TOTALS_CASES_DECEASED = 2
-		PAST_30_DAYS_CASES = 3
-		PAST_30_DAYS_DECEASED = 4
+		PAST_30_DAYS = 3
+		LOCATION_ZIPCODE = 4
+		LOCATION_COUNTY = 5
+		LOCATION_STATE = 6
+		ZIPCODE = 7
+		COUNTY = 8
+		STATE = 9
+		ZIPCODE_COUNTIES = 10
+		MODEL_TYPE = 11
 		"""
-		data = CovidDataFactory(MODEL_TYPE=CovidModel.TO_DATE_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE='19003',ReturnType=DjangoDB.TUPLES )
-		print ("CovidDataFactory(MODEL_TYPE=CovidDataFactory.TO_DATE_TOTALS_CASES_DECEASED) type(data)=", type(data), " data.result=", data.result)
-		#cols, rows = CovidDataFactory(MODEL_TYPE=CovidModel.TO_DATE_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE='19003',ReturnType=DjangoDB.TUPLES )
-		#print ("CovidDataFactory(MODEL_TYPE=CovidDataFactory.TO_DATE_TOTALS_CASES_DECEASED) type(cols)=", type(cols), " type(rows)=", type(rows))
-		# test = CovidDataFactory(GRAPH_TYPE = CovidDataFactory.MONTHLY_TOTALS_CASES_DECEASED)
-		# print ("CovidDataFactory(GRAPH_TYPE = CovidDataFactory.MONTHLY_TOTALS_CASES_DECEASED) = ", test)
-		# test = CovidDataFactory(GRAPH_TYPE = CovidDataFactory.PAST_30_DAYS_CASES)
-		# print ("CovidDataFactory(GRAPH_TYPE = CovidDataFactory.PAST_30_DAYS_CASES) = ", test)
-		# test = CovidDataFactory(GRAPH_TYPE = CovidDataFactory.PAST_30_DAYS_DECEASED)
-		# print ("CovidDataFactory(GRAPH_TYPE = CovidDataFactory.PAST_30_DAYS_DECEASED) = ", test)
+		#CovidModel.MODEL_TYPE
+		#data = CovidModelFactory(MODEL_TYPE = CovidModel.TO_DATE_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.TUPLES )
+		#print ("CovidModelFactory(MODEL_TYPE = CovidModelFactory.TO_DATE_TOTALS_CASES_DECEASED) type(data)=", type(data), " data.result=", data.CovidData)
+		#data = CovidModelFactory(MODEL_TYPE = CovidModel.MONTHLY_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.TUPLES )
+		#print ("CovidModelFactory(MODEL_TYPE = CovidModelFactory.MONTHLY_TOTALS_CASES_DECEASED) type(data)=", type(data), " data.CovidData=", data.CovidData)
+		# data = CovidModelFactory(MODEL_TYPE = CovidModel.MONTHLY_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.TUPLES )
+		# print ("CovidModelFactory(MODEL_TYPE=CovidModelFactory.MONTHLY_TOTALS_CASES_DECEASED) type(data)=", 
+		# 	type(data), " data.CovidData=", data.CovidData, " len(data.CovidData[1])=",len(data.CovidData[1]))
+		# data = CovidModelFactory(MODEL_TYPE = CovidModel.PAST_30_DAYS, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.TUPLES )
+		# print ("CovidModelFactory(MODEL_TYPE=CovidModelFactory.PAST_30_DAYS) type(data)=", 
+		# 	type(data), " data.CovidData=", data.CovidData, " len(data.CovidData[1])=",len(data.CovidData[1]))
+		# data = CovidModelFactory(MODEL_TYPE = CovidModel.PAST_30_DAYS, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.TUPLES )
+		# print ("CovidModelFactory(MODEL_TYPE=CovidModelFactory.PAST_30_DAYS) type(data)=", 
+		# 	type(data), " data.CovidData=", data.CovidData, " len(data.CovidData[1])=",len(data.CovidData[1]))
 		
-		return render(request, "pages/search_results.html")
 		
-		if isDataAvailableForRequest(req):
-			img1+=generatePieGraphic(req)
-			img2+=generateStackPlot(req)
-			img3, img4 = generateDualPlotCases(req)
-			msg_text = getMessagesForRequest(req)
-			if msg_text == None:
-				msg_text = ''
-			context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4, 'msg_text': msg_text, 'current_state' : req.state}
-			return render(request, "pages/search_results.html", context)		
+		# data = CovidModelFactory(MODEL_TYPE=CovidModel.PAST_30_DAYS, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.DICTIONARIES )
+		# print ("CovidModelFactory(MODEL_TYPE=CovidModel.PAST_30_DAYS,LOCATION=CovidModel.LOCATION_STATE) type(data)=", 
+		# 	type(data), "dataAvailable=",data.DataAvailable)	
+		# if data.DataAvailable:
+		# 	print ("CovidModelFactory(MODEL_TYPE=CovidModelFactory.PAST_30_DAYS,LOCATION=CovidModel.LOCATION_STATE) type(data)=", 
+		# 		type(data), "dataAvailable=",data.DataAvailable," data.CovidData=", data.CovidData)	
+		# else:
+		# 	print("index() CovidModelFactory data.DataAvailable=",data.DataAvailable," data.CovidData=", data.CovidData)
+		
+		# return render(request, "pages/search_results.html")
+		
+		# if isDataAvailableForRequest(req):
+		# 	img1+=generatePieGraphic(req)
+		# 	img2+=generateStackPlot(req)
+		# 	img3, img4 = generateDualPlotCases(req)
+		# 	msg_text = getMessagesForRequest(req)
+		# 	if msg_text == None:
+		# 		msg_text = ''
+		# 	context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4, 'msg_text': msg_text, 'current_state' : req.state}
+		# 	return render(request, "pages/search_results.html", context)		
+		# else:	#populate error page
+		# 	err_msg = 'No data found for zipcode ' + req.zip 
+		# 	context = {'err_msg': err_msg}
+		# 	return render(request, 'pages/errorpage.html', context)
+
+		# msgs
+		# data = CovidModelFactory(MODEL_TYPE = CovidModel.MESSAGES, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip, ReturnType=DjangoDB.DICTIONARIES )
+		# if data.DataAvailable:
+		# 	print ("CovidModelFactory(MODEL_TYPE=CovidModelFactory.PAST_30_DAYS,ZIPCODE=req.zip,LOCATION=CovidModel.LOCATION_STATE) type(data)=", 
+		# 		type(data), "dataAvailable=",data.DataAvailable," data.CovidData=", data.CovidData)
+		# 	msg_text = data.CovidData
+		# else:
+		# 	msg_text = None	 			
+
+		# # multiple counties
+		# data = CovidModelFactory(MODEL_TYPE = CovidModel.MESSAGES, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE_COUNTIES=req.zip, ReturnType=DjangoDB.DICTIONARIES )
+		# if data.DataAvailable:
+		# 	print ("CovidModelFactory(MODEL_TYPE=CovidModelFactory.PAST_30_DAYS,ZIPCODE_COUNTIES=req.zip,LOCATION=CovidModel.LOCATION_STATE) type(data)=", 
+		# 		type(data), "dataAvailable=",data.DataAvailable," data.CovidData=", data.CovidData)
+		# 	msg_text+= data.CovidData
+
+		# context = {'msg_text': msg_text}
+		# return render(request, "pages/search_results.html", context)		
+
+		# img1
+		tmpImg=generatePieGraphic(req)
+		if tmpImg!=None:
+			img1+=tmpImg
 		else:	#populate error page
 			err_msg = 'No data found for zipcode ' + req.zip 
 			context = {'err_msg': err_msg}
-			return render(request, 'pages/errorpage.html', context)
-	
+			return render(request, 'pages/errorpage.html', context)	
+		#return render(request, "pages/search_results.html", context)			
+
+		#img2
+		tmpImg=generateStackPlot(req)
+		if tmpImg!=None:
+			img2+=tmpImg
+		else:	#populate error page
+			err_msg = 'No data found for zipcode ' + req.zip 
+			context = {'err_msg': err_msg}
+			return render(request, 'pages/errorpage.html', context)	
+
+		#img3, img4
+		img3, img4=generateDualPlotCases(req)
+		if img3==None and img4==None:
+			err_msg = 'No data found for zipcode ' + req.zip 
+			context = {'err_msg': err_msg}
+			return render(request, 'pages/errorpage.html', context)	
+
+		# msgs for zip
+		msg_text=''
+		data = CovidModelFactory(MODEL_TYPE = CovidModel.MESSAGES, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip, ReturnType=DjangoDB.DICTIONARIES )
+		if data.DataAvailable:
+			print ("CovidModelFactory(MODEL_TYPE=CovidModelFactory.PAST_30_DAYS,ZIPCODE=req.zip,LOCATION=CovidModel.LOCATION_STATE) type(data)=", 
+				type(data), "dataAvailable=",data.DataAvailable," data.CovidData=", data.CovidData)
+			msg_text = data.CovidData
+		else:
+			msg_text = None	 			
+
+		# multiple counties for zip
+		data = CovidModelFactory(MODEL_TYPE = CovidModel.MESSAGES, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE_COUNTIES=req.zip, ReturnType=DjangoDB.DICTIONARIES )
+		if data.DataAvailable:
+			if len(data.CovidData) >1:
+				print ("CovidModelFactory(MODEL_TYPE=CovidModelFactory.PAST_30_DAYS,ZIPCODE_COUNTIES=req.zip,LOCATION=CovidModel.LOCATION_STATE) type(data)=", 
+					type(data), "dataAvailable=",data.DataAvailable," data.CovidData=", data.CovidData)
+				msg_text+= data.CovidData
+
+		context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4, 'msg_text': msg_text}
+		return render(request, "pages/search_results.html", context)		
+
 	else: # home page was just invoked, so initialize the form and render
 		# this code renders the form that gets user input
 		req = Request(request)
@@ -253,29 +340,37 @@ def generatePieGraphic(request):
 	# Pie chart, where the slices will be ordered and plotted counter-clockwise:
 	# make a square figure and axes
 
-	if request.search_type()==request.ZIPCODE:
-		sql = """
-			SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
-			SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased 
-			FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS)) 
-			WHERE uzf.zip = %s 
-			GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state 
-			"""
-	if request.search_type()==request.STATE_COUNTY:
-		sql = """
-			SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
-			SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased
-			FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS))
-			WHERE uzf.CountyName = %s
-			and uzf.State = %s
-			GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state;
-			"""
-	request_data = retrieveDBdata(request,sql) 
+	# if request.search_type()==request.ZIPCODE:
+	# 	sql = """
+	# 		SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
+	# 		SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased 
+	# 		FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS)) 
+	# 		WHERE uzf.zip = %s 
+	# 		GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state 
+	# 		"""
+	# if request.search_type()==request.STATE_COUNTY:
+	# 	sql = """
+	# 		SELECT uzf.STcountyFIPS AS FIPS, cft.county AS County, cft.province_state AS State,
+	# 		SUM(cft.daily_confirmed_case) AS Cases, SUM(cft.daily_deaths_case) AS Deceased
+	# 		FROM covid_finalmaster_table cft JOIN US_ZIP_FIPS uzf ON ((cft.FIPS = uzf.STcountyFIPS))
+	# 		WHERE uzf.CountyName = %s
+	# 		and uzf.State = %s
+	# 		GROUP BY uzf.STcountyFIPS , cft.county , cft.province_state;
+	# 		"""
+	# request_data = retrieveDBdata(request,sql) 
+	# print("generatePieGraphic request_data=",request_data)
+
+	resultSet = CovidModelFactory(MODEL_TYPE=CovidModel.TO_DATE_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=request.zip,ReturnType=DjangoDB.DICTIONARIES )
+	if resultSet.DataAvailable:
+		request_data = resultSet.CovidData
+	else:
+		return None
+		
+	#print("generatePieGraphic resultSet.CovidData=",resultSet.CovidData)
 
 	# can only generate graph if data available
 	if len(request_data) > 0:
 		labels = 'Cases', 'Deceased'
-		county = request_data[0]['County']
 
 		#  case = 100*(Cases-Deceased)/Cases
 		case = 100*(int(request_data[0]['Cases'])-int(request_data[0]['Deceased']))/int(request_data[0]['Cases'])
@@ -307,22 +402,31 @@ def generateStackPlot(request):
 	# make a square figure and axes
 
 	#First, retrieve data
-	if request.search_type()==request.ZIPCODE:
-		sql = """SELECT monthname(cft.last_update) as Month_part, STcountyFIPS as FIPS, cft.county,  cft.province_state as state, cft.confirmed as Cases, cft.deaths as Deceased
-			FROM covidtraveler_db.covid_finalmaster_table cft inner join covidtraveler_db.US_ZIP_FIPS uzf
-			on cft.FIPS = uzf.STcountyFIPS
-			where dayofmonth(cft.last_update)=1
-			and uzf.zip = %s
-			order by STcountyFIPS, cft.last_update; """
-	if request.search_type()==request.STATE_COUNTY:
-		sql = """SELECT monthname(cft.last_update) as Month_part, cft.FIPS, cft.county,  cft.province_state as state, cft.confirmed as Cases, cft.deaths as Deceased
-			FROM covidtraveler_db.covid_finalmaster_table cft 
-			where dayofmonth(cft.last_update)=1
-			and cft.county = %s
-			and cft.province_state = %s
-			order by cft.FIPS, cft.last_update; """
+	# if request.search_type()==request.ZIPCODE:
+	# 	sql = """SELECT monthname(cft.last_update) as Month_part, STcountyFIPS as FIPS, cft.county,  cft.province_state as state, cft.confirmed as Cases, cft.deaths as Deceased
+	# 		FROM covidtraveler_db.covid_finalmaster_table cft inner join covidtraveler_db.US_ZIP_FIPS uzf
+	# 		on cft.FIPS = uzf.STcountyFIPS
+	# 		where dayofmonth(cft.last_update)=1
+	# 		and uzf.zip = %s
+	# 		order by STcountyFIPS, cft.last_update; """
+	# if request.search_type()==request.STATE_COUNTY:
+	# 	sql = """SELECT monthname(cft.last_update) as Month_part, cft.FIPS, cft.county,  cft.province_state as state, cft.confirmed as Cases, cft.deaths as Deceased
+	# 		FROM covidtraveler_db.covid_finalmaster_table cft 
+	# 		where dayofmonth(cft.last_update)=1
+	# 		and cft.county = %s
+	# 		and cft.province_state = %s
+	# 		order by cft.FIPS, cft.last_update; """
 
-	request_data = retrieveDBdata(request,sql)  
+	# request_data = retrieveDBdata(request,sql) 
+
+	resultSet = CovidModelFactory(MODEL_TYPE=CovidModel.MONTHLY_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=request.zip,ReturnType=DjangoDB.DICTIONARIES )
+	if resultSet.DataAvailable:
+		request_data = resultSet.CovidData
+	else:
+		return None
+		
+	#print("generateStackPlot resultSet.CovidData=",resultSet.CovidData)
+
 	if len(request_data) > 0:
 		# get list of months returned from query - if more than one row returned there will be dupe month names
 		months = [d['Month_part'] for d in request_data if 'Month_part' in d]
@@ -389,35 +493,51 @@ def generateDualPlotCases(req):
 	import numpy as np
 	#First, retrieve query data from request
 
-	if req.search_type()==req.ZIPCODE:
-		sql = """
-			SELECT cft.province_state as state, cft.FIPS, cft.county, cft.last_update as event_day, 
-				cft.daily_confirmed_case as Cases, cft.daily_deaths_case as Deceased
-			FROM covidtraveler_db.covid_finalmaster_table cft inner join covidtraveler_db.US_ZIP_FIPS uzf
-			ON cft.FIPS = uzf.STcountyFIPS
-			where cft.last_update between date_sub(curdate(), INTERVAL 30 DAY) and curdate()
-			and uzf.zip = %s
-			order by cft.FIPS, cft.last_update
-		"""	
-	elif req.search_type()==req.STATE_COUNTY:
-		sql = """
-			SELECT cft.province_state as state, cft.FIPS, cft.county, cft.last_update as event_day, 
-				cft.daily_confirmed_case as Cases, cft.daily_deaths_case as Deceased
-			FROM covidtraveler_db.covid_finalmaster_table cft 
-			WHERE cft.county = %s
-			AND cft.province_state = %s
-			order by cft.FIPS, cft.last_update
-		"""	
-	county_data = retrieveDBdata(req,sql)
+	# if req.search_type()==req.ZIPCODE:
+	# 	sql = """
+	# 		SELECT cft.province_state as state, cft.FIPS, cft.county, cft.last_update as event_day, 
+	# 			cft.daily_confirmed_case as Cases, cft.daily_deaths_case as Deceased
+	# 		FROM covidtraveler_db.covid_finalmaster_table cft inner join covidtraveler_db.US_ZIP_FIPS uzf
+	# 		ON cft.FIPS = uzf.STcountyFIPS
+	# 		where cft.last_update between date_sub(curdate(), INTERVAL 30 DAY) and curdate()
+	# 		and uzf.zip = %s
+	# 		order by cft.FIPS, cft.last_update
+	# 	"""	
+	# elif req.search_type()==req.STATE_COUNTY:
+	# 	sql = """
+	# 		SELECT cft.province_state as state, cft.FIPS, cft.county, cft.last_update as event_day, 
+	# 			cft.daily_confirmed_case as Cases, cft.daily_deaths_case as Deceased
+	# 		FROM covidtraveler_db.covid_finalmaster_table cft 
+	# 		WHERE cft.county = %s
+	# 		AND cft.province_state = %s
+	# 		order by cft.FIPS, cft.last_update
+	# 	"""	
+	# county_data = retrieveDBdata(req,sql)
 
-	sql = """
-		SELECT cft.province_state as state, cft.last_update as event_day, sum(cft.daily_confirmed_case) as Cases, sum(cft.daily_deaths_case) as Deceased
-		FROM covidtraveler_db.covid_finalmaster_table cft 
-		where cft.last_update between date_sub(curdate(), INTERVAL 30 DAY) and curdate()
-		and cft.province_state = %s
-		group by cft.province_state, cft.last_update;
-	"""
-	state_data = retrieveDBdata2(req,sql,req.STATE_ONLY)
+	resultSet = CovidModelFactory(MODEL_TYPE=CovidModel.PAST_30_DAYS, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.DICTIONARIES )
+	if resultSet.DataAvailable:
+		county_data = resultSet.CovidData
+		print("generateDualPlotCases county_data=",county_data,"\n")
+	else:
+		return None	
+
+	# sql = """
+	# 	SELECT cft.province_state as state, cft.last_update as event_day, sum(cft.daily_confirmed_case) as Cases, sum(cft.daily_deaths_case) as Deceased
+	# 	FROM covidtraveler_db.covid_finalmaster_table cft 
+	# 	where cft.last_update between date_sub(curdate(), INTERVAL 30 DAY) and curdate()
+	# 	and cft.province_state = %s
+	# 	group by cft.province_state, cft.last_update;
+	# """
+	# state_data = retrieveDBdata2(req,sql,req.STATE_ONLY)
+
+	resultSet = CovidModelFactory(MODEL_TYPE=CovidModel.PAST_30_DAYS, LOCATION=CovidModel.LOCATION_STATE, STATE=req.state,ReturnType=DjangoDB.DICTIONARIES )
+	if resultSet.DataAvailable:
+		state_data = resultSet.CovidData
+		print("generateDualPlotCases state_data=",state_data,"\n")
+	else:
+		return None	
+
+
 	if len(county_data) > 0 and len(state_data) > 0:
 		from io import BytesIO
 		
