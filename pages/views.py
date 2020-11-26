@@ -10,6 +10,7 @@ from . forms import ZipCodeForm, ContactUsForm
 from . persistence import DjangoDB, PersistanceRequest
 from . models import CovidMessages, CovidModelFactory, CovidModel
 import feedparser
+from . graphics import GraphicsFactory, Graphic
 
 
 
@@ -53,8 +54,8 @@ def index(request):
 		# print("index() msg_text=",msg_text)
 
 		"""
-		TO_DATE_TOTALS_CASES_DECEASED = 1
-		MONTHLY_TOTALS_CASES_DECEASED = 2
+		AGGREGATE_CASES_DECEASED = 1
+		MONTHLY_CASES_DECEASED = 2
 		PAST_30_DAYS = 3
 		LOCATION_ZIPCODE = 4
 		LOCATION_COUNTY = 5
@@ -66,12 +67,12 @@ def index(request):
 		MODEL_TYPE = 11
 		"""
 		#CovidModel.MODEL_TYPE
-		#data = CovidModelFactory(MODEL_TYPE = CovidModel.TO_DATE_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.TUPLES )
-		#print ("CovidModelFactory(MODEL_TYPE = CovidModelFactory.TO_DATE_TOTALS_CASES_DECEASED) type(data)=", type(data), " data.result=", data.CovidData)
-		#data = CovidModelFactory(MODEL_TYPE = CovidModel.MONTHLY_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.TUPLES )
-		#print ("CovidModelFactory(MODEL_TYPE = CovidModelFactory.MONTHLY_TOTALS_CASES_DECEASED) type(data)=", type(data), " data.CovidData=", data.CovidData)
-		# data = CovidModelFactory(MODEL_TYPE = CovidModel.MONTHLY_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.TUPLES )
-		# print ("CovidModelFactory(MODEL_TYPE=CovidModelFactory.MONTHLY_TOTALS_CASES_DECEASED) type(data)=", 
+		#data = CovidModelFactory(MODEL_TYPE = CovidModel.AGGREGATE_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.TUPLES )
+		#print ("CovidModelFactory(MODEL_TYPE = CovidModelFactory.AGGREGATE_CASES_DECEASED) type(data)=", type(data), " data.result=", data.CovidData)
+		#data = CovidModelFactory(MODEL_TYPE = CovidModel.MONTHLY_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.TUPLES )
+		#print ("CovidModelFactory(MODEL_TYPE = CovidModelFactory.MONTHLY_CASES_DECEASED) type(data)=", type(data), " data.CovidData=", data.CovidData)
+		# data = CovidModelFactory(MODEL_TYPE = CovidModel.MONTHLY_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.TUPLES )
+		# print ("CovidModelFactory(MODEL_TYPE=CovidModelFactory.MONTHLY_CASES_DECEASED) type(data)=", 
 		# 	type(data), " data.CovidData=", data.CovidData, " len(data.CovidData[1])=",len(data.CovidData[1]))
 		# data = CovidModelFactory(MODEL_TYPE = CovidModel.PAST_30_DAYS, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.TUPLES )
 		# print ("CovidModelFactory(MODEL_TYPE=CovidModelFactory.PAST_30_DAYS) type(data)=", 
@@ -145,7 +146,7 @@ def index(request):
 			return render(request, 'pages/errorpage.html', context)	
 
 		#img3, img4
-		img3, img4=generateDualPlotCases(req)
+		img3, img4 = generateDualPlotCases(req)
 		if img3==None and img4==None:
 			err_msg = 'No data found for zipcode ' + req.zip 
 			context = {'err_msg': err_msg}
@@ -167,9 +168,13 @@ def index(request):
 			if len(data.CovidData) >1:
 				print ("CovidModelFactory(MODEL_TYPE=CovidModelFactory.PAST_30_DAYS,ZIPCODE_COUNTIES=req.zip,LOCATION=CovidModel.LOCATION_STATE) type(data)=", 
 					type(data), "dataAvailable=",data.DataAvailable," data.CovidData=", data.CovidData)
-				msg_text+= data.CovidData
+				msg_text[0]+= " - " + str(data.CovidData).strip('[]')
+				
+		if msg_text != None:
+			context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4, 'msg_text': msg_text[0]}
+		else:
+			context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4}
 
-		context = {'graph1': img1, 'graph2': img2, 'graph3' : img3, 'graph4' : img4, 'msg_text': msg_text}
 		return render(request, "pages/search_results.html", context)		
 
 	else: # home page was just invoked, so initialize the form and render
@@ -360,42 +365,46 @@ def generatePieGraphic(request):
 	# request_data = retrieveDBdata(request,sql) 
 	# print("generatePieGraphic request_data=",request_data)
 
-	resultSet = CovidModelFactory(MODEL_TYPE=CovidModel.TO_DATE_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=request.zip,ReturnType=DjangoDB.DICTIONARIES )
-	if resultSet.DataAvailable:
-		request_data = resultSet.CovidData
+	data = CovidModelFactory(MODEL_TYPE=CovidModel.AGGREGATE_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=request.zip,ReturnType=DjangoDB.DICTIONARIES )
+	if data.DataAvailable:
+		request_data = data.CovidData
 	else:
 		return None
 		
 	#print("generatePieGraphic resultSet.CovidData=",resultSet.CovidData)
 
-	# can only generate graph if data available
-	if len(request_data) > 0:
-		labels = 'Cases', 'Deceased'
+	pieGraph = GraphicsFactory(GRAPHIC_TYPE=Graphic.PIE, IMAGE_DATA=request_data)
+	#print ("generatePieGraphic() pieGraph.image=",pieGraph.image)
+	return pieGraph.image
 
-		#  case = 100*(Cases-Deceased)/Cases
-		case = 100*(int(request_data[0]['Cases'])-int(request_data[0]['Deceased']))/int(request_data[0]['Cases'])
-		
-		#  deceased = 100*(Deceased/Cases)
-		deceased = 100*(int(request_data[0]['Deceased'])/int(request_data[0]['Cases']))
-		sizes = [case, deceased]
-		explode = (0, 0.1)
-		
-		plt.ioff()
-		fig1, ax1 = plt.subplots()
-		ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
-				shadow=True, startangle=90)
-		ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-		ax1.legend(loc='upper left',fancybox=True)
-		ax1.set_title(str(request_data[0]['County']) + " County, " + str(request_data[0]['State']) + " - Ratio of Confirmed to Deceased")
+	# # can only generate graph if data available
+	# if len(request_data) > 0:
+	# 	labels = 'Cases', 'Deceased'
 
-		# save and return
-		from io import BytesIO
-		buf = BytesIO()
-		plt.savefig(buf, transparent = True, format="png")
-		buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
-	else:
-		buf_base64 = None
-	return buf_base64
+	# 	#  case = 100*(Cases-Deceased)/Cases
+	# 	case = 100*(int(request_data[0]['Cases'])-int(request_data[0]['Deceased']))/int(request_data[0]['Cases'])
+		
+	# 	#  deceased = 100*(Deceased/Cases)
+	# 	deceased = 100*(int(request_data[0]['Deceased'])/int(request_data[0]['Cases']))
+	# 	sizes = [case, deceased]
+	# 	explode = (0, 0.1)
+		
+	# 	plt.ioff()
+	# 	fig1, ax1 = plt.subplots()
+	# 	ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+	# 			shadow=True, startangle=90)
+	# 	ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+	# 	ax1.legend(loc='upper left',fancybox=True)
+	# 	ax1.set_title(str(request_data[0]['County']) + " County, " + str(request_data[0]['State']) + " - Ratio of Confirmed to Deceased")
+
+	# 	# save and return
+	# 	from io import BytesIO
+	# 	buf = BytesIO()
+	# 	plt.savefig(buf, transparent = True, format="png")
+	# 	buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+	# else:
+	# 	buf_base64 = None
+	# return buf_base64
 
 def generateStackPlot(request):
 	# Stackplot chart, where the slices will be ordered and plotted counter-clockwise:
@@ -419,74 +428,79 @@ def generateStackPlot(request):
 
 	# request_data = retrieveDBdata(request,sql) 
 
-	resultSet = CovidModelFactory(MODEL_TYPE=CovidModel.MONTHLY_TOTALS_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=request.zip,ReturnType=DjangoDB.DICTIONARIES )
+	resultSet = CovidModelFactory(MODEL_TYPE=CovidModel.MONTHLY_CASES_DECEASED, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=request.zip,ReturnType=DjangoDB.DICTIONARIES )
 	if resultSet.DataAvailable:
 		request_data = resultSet.CovidData
 	else:
 		return None
 		
-	#print("generateStackPlot resultSet.CovidData=",resultSet.CovidData)
-
-	if len(request_data) > 0:
-		# get list of months returned from query - if more than one row returned there will be dupe month names
-		months = [d['Month_part'] for d in request_data if 'Month_part' in d]
-		# remove dupe month names from list
-		months = list(dict.fromkeys(months))
-		
-		# get unique set of FIPS - will be used to filter data for each graph
-		FIPS = [d['FIPS'] for d in request_data if 'FIPS' in d]
-		# reduce list of FIPS values to unique set (becomes a dictionary)
-		FIPS=list(dict.fromkeys(FIPS))
-		
-		# start new row list that will contain only the FIPS to be graphed - this currently constrains to the first FIPS found, and
-		# msg text will be provided explaining to the user that they need to search additional counties within the state for more information
-		row_list=list()
-		for item in request_data:
-			if item['FIPS'] == FIPS[0]:
-				row_list.append(item)
-		cases = [d['Cases'] for d in row_list if 'Cases' in d]
-		deceased = [d['Deceased'] for d in row_list if 'Deceased' in d]
-
-		# get unique name of county - will be used in display literals
-		county = [d['county'] for d in row_list if 'county' in d]
-		# reduce list of FIPS values to unique set (becomes a dictionary)
-		county=set(county)
-		# convert the dictionary back to a list structure
-		county=list(county)
-
-		# get unique name of state - will be used in display literals
-		state = [d['state'] for d in row_list if 'state' in d]
-		# reduce list of FIPS values to unique set (becomes a dictionary)
-		state=set(state)
-		# convert the dictionary back to a list structure
-		state=list(state)
-
-		#!!!fudge code alert!!!
-		request.state = state #this is a fudge - should not need this here!!
-		#!!!fudge code alert!!!
-
-		population = {
-			'Cases': cases,
-			'Deceased': deceased,
-		}
-		plt.ioff()
-		fig, ax = plt.subplots()
-		ax.stackplot(months, population.values(),
-					labels=population.keys())
-		ax.legend(loc='upper left',fancybox=True)
-		ax.set_title(county[0] + ' County, '+ state[0] + ' - FIPS ' + FIPS[0] + ' - Monthly Growth')
-		ax.set_xlabel('Month')
-		ax.set_ylabel('Population Affected')
-		ax.facecolor = 'inherit'
-
-		# save and return
-		from io import BytesIO
-		buf = BytesIO()
-		plt.savefig(buf, transparent=True, format="png")
-		buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+	stackPlotGraph = GraphicsFactory(GRAPHIC_TYPE=Graphic.STACKPLOT, IMAGE_DATA=request_data)
+	if stackPlotGraph.ImageAvailable:
+		#print ("generateStackPlot() pieGraph.image=",stackPlotGraph.image)
+		return stackPlotGraph.image
 	else:
-		buf_base64 = ''
-	return buf_base64
+		return None
+
+	# if len(request_data) > 0:
+	# 	# get list of months returned from query - if more than one row returned there will be dupe month names
+	# 	months = [d['Month_part'] for d in request_data if 'Month_part' in d]
+	# 	# remove dupe month names from list
+	# 	months = list(dict.fromkeys(months))
+		
+	# 	# get unique set of FIPS - will be used to filter data for each graph
+	# 	FIPS = [d['FIPS'] for d in request_data if 'FIPS' in d]
+	# 	# reduce list of FIPS values to unique set (becomes a dictionary)
+	# 	FIPS=list(dict.fromkeys(FIPS))
+		
+	# 	# start new row list that will contain only the FIPS to be graphed - this currently constrains to the first FIPS found, and
+	# 	# msg text will be provided explaining to the user that they need to search additional counties within the state for more information
+	# 	row_list=list()
+	# 	for item in request_data:
+	# 		if item['FIPS'] == FIPS[0]:
+	# 			row_list.append(item)
+	# 	cases = [d['Cases'] for d in row_list if 'Cases' in d]
+	# 	deceased = [d['Deceased'] for d in row_list if 'Deceased' in d]
+
+	# 	# get unique name of county - will be used in display literals
+	# 	county = [d['county'] for d in row_list if 'county' in d]
+	# 	# reduce list of FIPS values to unique set (becomes a dictionary)
+	# 	county=set(county)
+	# 	# convert the dictionary back to a list structure
+	# 	county=list(county)
+
+	# 	# get unique name of state - will be used in display literals
+	# 	state = [d['state'] for d in row_list if 'state' in d]
+	# 	# reduce list of FIPS values to unique set (becomes a dictionary)
+	# 	state=set(state)
+	# 	# convert the dictionary back to a list structure
+	# 	state=list(state)
+
+	# 	#!!!fudge code alert!!!
+	# 	request.state = state #this is a fudge - should not need this here!!
+	# 	#!!!fudge code alert!!!
+
+	# 	population = {
+	# 		'Cases': cases,
+	# 		'Deceased': deceased,
+	# 	}
+	# 	plt.ioff()
+	# 	fig, ax = plt.subplots()
+	# 	ax.stackplot(months, population.values(),
+	# 				labels=population.keys())
+	# 	ax.legend(loc='upper left',fancybox=True)
+	# 	ax.set_title(county[0] + ' County, '+ state[0] + ' - FIPS ' + FIPS[0] + ' - Monthly Growth')
+	# 	ax.set_xlabel('Month')
+	# 	ax.set_ylabel('Population Affected')
+	# 	ax.facecolor = 'inherit'
+
+	# 	# save and return
+	# 	from io import BytesIO
+	# 	buf = BytesIO()
+	# 	plt.savefig(buf, transparent=True, format="png")
+	# 	buf_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+	# else:
+	# 	buf_base64 = ''
+	# return buf_base64
 
 def generateDualPlotCases(req):
 	# Dual plot chart to compare two related data items that occur with different scaling
@@ -514,10 +528,12 @@ def generateDualPlotCases(req):
 	# 	"""	
 	# county_data = retrieveDBdata(req,sql)
 
-	resultSet = CovidModelFactory(MODEL_TYPE=CovidModel.PAST_30_DAYS, LOCATION=CovidModel.LOCATION_ZIPCODE, ZIPCODE=req.zip,ReturnType=DjangoDB.DICTIONARIES )
+	resultSet = CovidModelFactory(MODEL_TYPE=CovidModel.PAST_30_DAYS, 
+				LOCATION=CovidModel.LOCATION_ZIPCODE, 
+				ZIPCODE=req.zip, ReturnType=DjangoDB.DICTIONARIES )
 	if resultSet.DataAvailable:
 		county_data = resultSet.CovidData
-		print("generateDualPlotCases county_data=",county_data,"\n")
+		#print("generateDualPlotCases county_data=",county_data,"\n")
 	else:
 		return None	
 
@@ -530,127 +546,144 @@ def generateDualPlotCases(req):
 	# """
 	# state_data = retrieveDBdata2(req,sql,req.STATE_ONLY)
 
-	resultSet = CovidModelFactory(MODEL_TYPE=CovidModel.PAST_30_DAYS, LOCATION=CovidModel.LOCATION_STATE, STATE=req.state,ReturnType=DjangoDB.DICTIONARIES )
+	# first, get the state for the zipcode
+	resultSet = CovidModelFactory(MODEL_TYPE=CovidModel.MESSAGES, 
+				ZIPCODE_STATE=req.zip, 
+				ReturnType=DjangoDB.DICTIONARIES )
 	if resultSet.DataAvailable:
-		state_data = resultSet.CovidData
-		print("generateDualPlotCases state_data=",state_data,"\n")
+		zip_state_data = resultSet.CovidData
+		#print("generateDualPlotCases state_data=",zip_state_data,"zip_state_data[0]=",zip_state_data[0])
 	else:
 		return None	
 
-
-	if len(county_data) > 0 and len(state_data) > 0:
-		from io import BytesIO
-		
-		# get list of months returned from query - if more than one row returned there will be dupe month names
-		dates = [d['event_day'] for d in county_data if 'event_day' in d]
-		# remove dupe dates from list
-		dates = list(dict.fromkeys(dates))
-		# days 
-		days = len(dates)
-
-		# get unique set of FIPS - will be used to filter data for each graph
-		FIPS = [d['FIPS'] for d in county_data if 'FIPS' in d]
-		# reduce list of FIPS values to unique set (becomes a dictionary)
-		FIPS=list(dict.fromkeys(FIPS))
-		
-		# start new row list that will contain only the FIPS to be graphed - this currently constrains to the first FIPS found, and
-		# msg text will be provided explaining to the user that they need to search additional counties within the state for more information
-		row_list=list()
-		for item in county_data:
-			if item['FIPS'] == FIPS[0]:
-				row_list.append(item)
-		county_cases = [d['Cases'] for d in row_list if 'Cases' in d]
-		county_cases_min=min(county_cases)
-		county_cases_max=max(county_cases)
-		county_deceased = [d['Deceased'] for d in row_list if 'Deceased' in d]
-		county_deceased_min=min(county_deceased)
-		county_deceased_max=max(county_deceased)
-	
-		# get unique name of county - will be used in display literals
-		county = [d['county'] for d in row_list if 'county' in d]
-		# reduce list of FIPS values to unique set (becomes a dictionary)
-		county=set(county)
-		# convert the dictionary back to a list structure
-		county=list(county)
-
-		# begin adjacent subplots image
-		t = np.arange(0, days, 1)
-
-		# s1 is county 
-		#s1 = county_cases
-
-		# s2 is state data
-		state_cases = [d['Cases'] for d in state_data if 'Cases' in d]
-		state_cases_min=min(state_cases)
-		state_cases_max=max(state_cases)
-		state_deceased = [d['Deceased'] for d in state_data if 'Deceased' in d]
-		state_deceased_min=min(state_deceased)
-		state_deceased_max=max(state_deceased)
-		
-		# cases graphs
-		plt.ioff()	
-		fig_cases, axs_cases = plt.subplots(2, 1, sharex=True)
-		# Remove horizontal space between axes
-		fig_cases.subplots_adjust(hspace=0)
-
-		# Plot each graph, and manually set the y tick values
-		axs_cases[0].plot(t, county_cases)
-		axs_cases[0].set_yticks(np.arange(county_cases_min, county_cases_max, ((county_cases_max-county_cases_min)//10)))
-		axs_cases[0].set_ylim(county_cases_min, county_cases_max*1.1)
-
-		axs_cases[1].plot(t, state_cases)
-		axs_cases[1].set_yticks(np.arange(state_cases_min, state_cases_max, (state_cases_max-state_cases_min)//10))
-		axs_cases[1].set_ylim(state_cases_min, state_cases_max*1.1)
-
-		label=county[0]+' County'
-		axs_cases[0].set_ylabel(label)
-		label= 'Past '+ str(days) +' Days'
-		axs_cases[1].set_xlabel(label)
-		label=str(req.state)
-		axs_cases[1].set_ylabel(label)
-		axs_cases[0].legend(loc='upper left',fancybox=True)
-		axs_cases[0].set_title(county[0] + ' County vs. '+ str(req.state) + ' - Daily New Cases')
-		buf = BytesIO()
-		plt.savefig(buf, transparent=True, format="png")
-		cases_graph = "data:image/png;base64,"
-		cases_graph += base64.b64encode(buf.getvalue()).decode('utf-8')
-
-		#--- deceased graphs ---
-		fig_deceased, axs_deceased = plt.subplots(2, 1, sharex=True)
-		# Remove horizontal space between axes
-		plt.ioff()
-		fig_deceased.subplots_adjust(hspace=0)
-
-		# Plot each graph, and manually set the y tick values
-		axs_deceased[0].plot(t, county_deceased)
-		if (county_deceased_max-county_deceased_min)<10:
-				ticks=.5
-		else:
-				ticks=1
-		axs_deceased[0].set_yticks(np.arange(county_deceased_min, county_deceased_max, ((county_deceased_max-county_deceased_min)//ticks)))
-		axs_deceased[0].set_ylim(county_deceased_min, county_deceased_max*1.1)
-
-		axs_deceased[1].plot(t, state_deceased)
-		axs_deceased[1].set_yticks(np.arange(state_deceased_min, state_deceased_max, (state_deceased_max-state_deceased_min)//10))
-		axs_deceased[1].set_ylim(state_deceased_min, state_deceased_max*1.1)
-
-		label=county[0]+' County'
-		axs_deceased[0].set_ylabel(label)
-		label= 'Past '+ str(days) +' Days'
-		axs_deceased[1].set_xlabel(label)
-		label=str(req.state)
-		axs_deceased[1].set_ylabel(label)
-		axs_deceased[0].legend(loc='upper left',fancybox=True)
-		axs_deceased[0].set_title(county[0] + ' County vs. '+ str(req.state) + ' - Daily Deceased')
-		buf = BytesIO()
-		plt.savefig(buf, transparent=True, format="png")
-		deceased_graph = "data:image/png;base64,"
-		deceased_graph += base64.b64encode(buf.getvalue()).decode('utf-8')
-		# end adjacent subplots image
-
+	resultSet = CovidModelFactory(MODEL_TYPE=CovidModel.PAST_30_DAYS, LOCATION=CovidModel.LOCATION_STATE, STATE=zip_state_data[0], ReturnType=DjangoDB.DICTIONARIES )
+	if resultSet.DataAvailable:
+		state_data = resultSet.CovidData
+		#print("generateDualPlotCases state_data=",state_data,"\n")
 	else:
-		cases_graph = ''
-		deceased_graph = ''
-	return cases_graph, deceased_graph
+		return None	
+
+	dualPlotGraphCases = GraphicsFactory(GRAPHIC_TYPE=Graphic.DUAL_PLOT, COUNTY_DATA=county_data, STATE_DATA=state_data, STATE=zip_state_data[0])
+	if dualPlotGraphCases.ImageAvailable:
+		return dualPlotGraphCases.image
+	else:
+		return None
+	
+	return # should never reach here
+
+	# if len(county_data) > 0 and len(state_data) > 0:
+	# 	from io import BytesIO
+		
+	# 	# get list of months returned from query - if more than one row returned there will be dupe month names
+	# 	dates = [d['event_day'] for d in county_data if 'event_day' in d]
+	# 	# remove dupe dates from list
+	# 	dates = list(dict.fromkeys(dates))
+	# 	# days 
+	# 	days = len(dates)
+
+	# 	# get unique set of FIPS - will be used to filter data for each graph
+	# 	FIPS = [d['FIPS'] for d in county_data if 'FIPS' in d]
+	# 	# reduce list of FIPS values to unique set (becomes a dictionary)
+	# 	FIPS=list(dict.fromkeys(FIPS))
+		
+	# 	# start new row list that will contain only the FIPS to be graphed - this currently constrains to the first FIPS found, and
+	# 	# msg text will be provided explaining to the user that they need to search additional counties within the state for more information
+	# 	row_list=list()
+	# 	for item in county_data:
+	# 		if item['FIPS'] == FIPS[0]:
+	# 			row_list.append(item)
+	# 	county_cases = [d['Cases'] for d in row_list if 'Cases' in d]
+	# 	county_cases_min=min(county_cases)
+	# 	county_cases_max=max(county_cases)
+	# 	county_deceased = [d['Deceased'] for d in row_list if 'Deceased' in d]
+	# 	county_deceased_min=min(county_deceased)
+	# 	county_deceased_max=max(county_deceased)
+	
+	# 	# get unique name of county - will be used in display literals
+	# 	county = [d['county'] for d in row_list if 'county' in d]
+	# 	# reduce list of FIPS values to unique set (becomes a dictionary)
+	# 	county=set(county)
+	# 	# convert the dictionary back to a list structure
+	# 	county=list(county)
+
+	# 	# begin adjacent subplots image
+	# 	t = np.arange(0, days, 1)
+
+	# 	# s1 is county 
+	# 	#s1 = county_cases
+
+	# 	# s2 is state data
+	# 	state_cases = [d['Cases'] for d in state_data if 'Cases' in d]
+	# 	state_cases_min=min(state_cases)
+	# 	state_cases_max=max(state_cases)
+	# 	state_deceased = [d['Deceased'] for d in state_data if 'Deceased' in d]
+	# 	state_deceased_min=min(state_deceased)
+	# 	state_deceased_max=max(state_deceased)
+		
+	# 	# --cases graphs--
+	# 	plt.ioff()	
+	# 	fig_cases, axs_cases = plt.subplots(2, 1, sharex=True)
+	# 	# Remove horizontal space between axes
+	# 	fig_cases.subplots_adjust(hspace=0)
+
+	# 	# Plot each graph, and manually set the y tick values
+	# 	axs_cases[0].plot(t, county_cases)
+	# 	axs_cases[0].set_yticks(np.arange(county_cases_min, county_cases_max, ((county_cases_max-county_cases_min)//10)))
+	# 	axs_cases[0].set_ylim(county_cases_min, county_cases_max*1.1)
+
+	# 	axs_cases[1].plot(t, state_cases)
+	# 	axs_cases[1].set_yticks(np.arange(state_cases_min, state_cases_max, (state_cases_max-state_cases_min)//10))
+	# 	axs_cases[1].set_ylim(state_cases_min, state_cases_max*1.1)
+
+	# 	label=county[0]+' County'
+	# 	axs_cases[0].set_ylabel(label)
+	# 	label= 'Past '+ str(days) +' Days'
+	# 	axs_cases[1].set_xlabel(label)
+	# 	label=str(zip_state_data[0])
+	# 	axs_cases[1].set_ylabel(label)
+	# 	axs_cases[0].legend(loc='upper left',fancybox=True)
+	# 	axs_cases[0].set_title(county[0] + ' County vs. '+ str(zip_state_data[0]) + ' - Daily New Cases')
+	# 	buf = BytesIO()
+	# 	plt.savefig(buf, transparent=True, format="png")
+	# 	cases_graph = "data:image/png;base64,"
+	# 	cases_graph += base64.b64encode(buf.getvalue()).decode('utf-8')
+
+	# 	#--- deceased graphs ---
+	# 	fig_deceased, axs_deceased = plt.subplots(2, 1, sharex=True)
+	# 	# Remove horizontal space between axes
+	# 	plt.ioff()
+	# 	fig_deceased.subplots_adjust(hspace=0)
+
+	# 	# Plot each graph, and manually set the y tick values
+	# 	axs_deceased[0].plot(t, county_deceased)
+	# 	if (county_deceased_max-county_deceased_min)<10:
+	# 			ticks=.5
+	# 	else:
+	# 			ticks=1
+	# 	axs_deceased[0].set_yticks(np.arange(county_deceased_min, county_deceased_max, ((county_deceased_max-county_deceased_min)//ticks)))
+	# 	axs_deceased[0].set_ylim(county_deceased_min, county_deceased_max*1.1)
+
+	# 	axs_deceased[1].plot(t, state_deceased)
+	# 	axs_deceased[1].set_yticks(np.arange(state_deceased_min, state_deceased_max, (state_deceased_max-state_deceased_min)//10))
+	# 	axs_deceased[1].set_ylim(state_deceased_min, state_deceased_max*1.1)
+
+	# 	label=county[0]+' County'
+	# 	axs_deceased[0].set_ylabel(label)
+	# 	label= 'Past '+ str(days) +' Days'
+	# 	axs_deceased[1].set_xlabel(label)
+	# 	label=str(zip_state_data[0])
+	# 	axs_deceased[1].set_ylabel(label)
+	# 	axs_deceased[0].legend(loc='upper left',fancybox=True)
+	# 	axs_deceased[0].set_title(county[0] + ' County vs. '+ str(zip_state_data[0]) + ' - Daily Deceased')
+	# 	buf = BytesIO()
+	# 	plt.savefig(buf, transparent=True, format="png")
+	# 	deceased_graph = "data:image/png;base64,"
+	# 	deceased_graph += base64.b64encode(buf.getvalue()).decode('utf-8')
+	# 	# end adjacent subplots image
+
+	# else:
+	# 	cases_graph = ''
+	# 	deceased_graph = ''
+	# return cases_graph, deceased_graph
 
 

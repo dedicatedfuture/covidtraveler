@@ -49,12 +49,13 @@ class Feedback(models.Model):
 
 class CovidModel(ABC):
 
-    TO_DATE_TOTALS_CASES_DECEASED = 1
-    MONTHLY_TOTALS_CASES_DECEASED = 2
+    AGGREGATE_CASES_DECEASED = 1
+    MONTHLY_CASES_DECEASED = 2
     PAST_30_DAYS = 3
     LOCATION_ZIPCODE = 4
     LOCATION_COUNTY = 5
     LOCATION_STATE = 6
+    LOCATION_STATE_BY_ZIP = 9    
     MESSAGES = 7
     ZIP_MULTIPLE_COUNTIES = 8
 
@@ -101,29 +102,29 @@ class CovidModelFactory(CovidModel):
         """
         try:
             if 'MODEL_TYPE' in kwargs:
-                if kwargs['MODEL_TYPE'] == CovidModel.TO_DATE_TOTALS_CASES_DECEASED:
+                if kwargs['MODEL_TYPE'] == CovidModel.AGGREGATE_CASES_DECEASED:
                     covidModel = CovidAggregateTotals()                   
                     self.CovidData = covidModel.getData(*args,**kwargs)
                     self.DataAvailable=self.__isDataAvailable(self.CovidData)
-                    return self.CovidData
+                    return 
                     
-                if kwargs['MODEL_TYPE'] == CovidModel.MONTHLY_TOTALS_CASES_DECEASED:
+                if kwargs['MODEL_TYPE'] == CovidModel.MONTHLY_CASES_DECEASED:
                     covidModel = CovidMonthlyTotals()                   
                     self.CovidData = covidModel.getData(*args,**kwargs)
                     self.DataAvailable=self.__isDataAvailable(self.CovidData)
-                    return self.CovidData                    
+                    return                     
 
                 if kwargs['MODEL_TYPE'] == CovidModel.PAST_30_DAYS:
                     covidModel = CovidDailyTotals()                   
                     self.CovidData = covidModel.getData(*args,**kwargs)
                     self.DataAvailable=self.__isDataAvailable(self.CovidData)
-                    return self.DataAvailable, self.CovidData 
+                    return 
 
                 if kwargs['MODEL_TYPE'] == CovidModel.MESSAGES:
                     covidModel = CovidMessages()                   
                     self.CovidData = covidModel.getData(*args,**kwargs)
                     self.DataAvailable=self.__isDataAvailable(self.CovidData)
-                    return self.DataAvailable, self.CovidData 
+                    return  
 
             print ("CovidMessages.__createCovidModelInstance() - did not receive a recognizable model type - no model object instantiated. Args received = ",kwargs)
             return None
@@ -164,14 +165,22 @@ class CovidMessages(CovidModel):
         self._sqlZipCounties_="""
         SELECT distinct CountyName as msg_text FROM covidtraveler_db.US_ZIP_FIPS
         where zip = %s;
+        """ 
+        
+        self._sqlZipState_="""
+        SELECT distinctrow uzf.zip , sn.state_fullname as msg_text
+        FROM covidtraveler_db.US_ZIP_FIPS uzf
+        inner join covidtraveler_db.fips_county_state_names sn
+        on sn.fips = uzf.STcountyFIPS
+        where uzf.zip = %s
+        order by uzf.State;
         """
 
     def __getData(self, *args, **kwargs):
         try:
-            # self.dbReq = PersistanceRequest(ReturnType=DjangoDB.DICTIONARIES, SQL=kwargs['SQL'], whereParams=[kwargs['whereParams']])
-            # return self.persist.getData(self.dbReq)
             self.dbReq = PersistanceRequest(ReturnType=kwargs['ReturnType'], SQL=self.__sql, whereParams=self.__data)
-            return CovidModel.persist.getData(self.dbReq)           
+            return CovidModel.persist.getData(self.dbReq)
+
         except:
             print ("CovidMessages._getData_() - unexpected error: ",sys.exc_info()[0])
             return None        
@@ -189,6 +198,10 @@ class CovidMessages(CovidModel):
             elif 'ZIPCODE_COUNTIES' in kwargs: 
                 self.__sql=self._sqlZipCounties_
                 self.__data=[kwargs['ZIPCODE_COUNTIES']]
+
+            elif 'ZIPCODE_STATE' in kwargs: 
+                self.__sql=self._sqlZipState_
+                self.__data=[kwargs['ZIPCODE_STATE']]
 
             else:
                 print ("CovidMessages.getData() - missing expected keys ZIPCODE or STATE/COUNTY combination in argument list - received: ",kwargs)
@@ -307,6 +320,10 @@ class CovidMonthlyTotals(CovidModel):
                     self.__sql = self.__sqlStateCountyTotals
                     self.__data = [kwargs['STATE'],kwargs['COUNTY']]
 
+                elif kwargs['LOCATION']==CovidModel.LOCATION_COUNTY:
+                    self.__sql = self.__sqlStateCountyTotals
+                    self.__data = [kwargs['STATE'],kwargs['COUNTY']]
+                    
                 if 'ReturnType' in kwargs:
                     retType=kwargs['ReturnType']
 
@@ -345,6 +362,14 @@ class CovidDailyTotals(CovidModel):
         """
 
     __sqlStateOnlyTotals = """
+ 		SELECT cft.province_state as state, cft.last_update as event_day, sum(cft.daily_confirmed_case) as Cases, sum(cft.daily_deaths_case) as Deceased
+		FROM covidtraveler_db.covid_finalmaster_table cft 
+		where cft.last_update between date_sub(curdate(), INTERVAL 30 DAY) and curdate()
+		and cft.province_state = %s
+		group by cft.province_state, cft.last_update;
+        """
+
+    __sqlStateByZipTotals = """
  		SELECT cft.province_state as state, cft.last_update as event_day, sum(cft.daily_confirmed_case) as Cases, sum(cft.daily_deaths_case) as Deceased
 		FROM covidtraveler_db.covid_finalmaster_table cft 
 		where cft.last_update between date_sub(curdate(), INTERVAL 30 DAY) and curdate()
