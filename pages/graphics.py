@@ -92,7 +92,7 @@ class PieGraph(Graphic):
         """
         docstring
         """
-        print("PieGraph.getImage()  kwargs=", kwargs)
+        #print("PieGraph.getImage()  kwargs=", kwargs)
         if 'IMAGE_DATA' not in kwargs:
             return None
 
@@ -145,7 +145,7 @@ class StackPlotGraph(Graphic):
         """
         docstring
         """
-        print("StackPlotGraph.getImage()  kwargs=", kwargs)
+        #print("StackPlotGraph.getImage()  kwargs=", kwargs)
         if 'IMAGE_DATA' not in kwargs:
             return None
 
@@ -254,16 +254,6 @@ class DualPlotGraph(Graphic):
                 print("DualPlotGraph.__constructImage() - no state name provided - exiting early")
                 return None
 
-            # if 'COUNTY_DATA' in kwargs:
-            #     county_data = kwargs['COUNTY_DATA']
-            # elif 'STATE_DATA' in kwargs:
-            #     state_data = kwargs['STATE_DATA']
-            # elif 'STATE' in kwargs:
-            #     state_name = kwargs['STATE']
-            # elif
-            #     print("DualPlotGraph.__constructImage() - no state name provided - exiting early")
-            #     return None
-
             dates = [d['event_day'] for d in county_data if 'event_day' in d]
             # remove dupe dates from list
             dates = list(dict.fromkeys(dates))
@@ -365,7 +355,8 @@ class DualPlotGraph(Graphic):
             plt.savefig(buf, transparent=True, format="png")
             deceased_graph = "data:image/png;base64,"
             deceased_graph += base64.b64encode(buf.getvalue()).decode('utf-8')
-            return cases_graph,deceased_graph
+            graphs = {'CASES_GRAPH':cases_graph, 'DECEASED_GRAPH':deceased_graph}
+            return graphs
 
         except:
             print ("DualPlotGraph.__constructImage() - unexpected error: ",sys.exc_info()[0])

@@ -341,7 +341,6 @@ class CovidAggregateTotals(CovidModel):
         """
         docstring
         """
-        print("CovidAggregateTotals getData()  kwargs=", kwargs)
         return self.__getData(self, *args, **kwargs)
 
     def __getData(self, *args, **kwargs):
@@ -349,7 +348,7 @@ class CovidAggregateTotals(CovidModel):
         docstring
         """        
         try:
-            print("CovidAggregateTotals __getData()  kwargs=", kwargs)
+            #print("CovidAggregateTotals __getData()  kwargs=", kwargs)
             if 'LOCATION' in kwargs:
                 
                 if kwargs['LOCATION']==CovidModel.LOCATION_ZIPCODE:
@@ -401,12 +400,12 @@ class CovidMonthlyTotals(CovidModel):
         """
         docstring
         """
-        print("CovidMonthlyTotals getData()  kwargs=", kwargs)
+        #print("CovidMonthlyTotals getData()  kwargs=", kwargs)
         return self.__getData(self, *args, **kwargs)
 
     def __getData(self, *args, **kwargs):
         try:
-            print("CovidMonthlyTotals __getData()  kwargs=", kwargs)
+            #print("CovidMonthlyTotals __getData()  kwargs=", kwargs)
             if 'LOCATION' in kwargs:
                 
                 if kwargs['LOCATION']==CovidModel.LOCATION_ZIPCODE:
@@ -481,12 +480,12 @@ class CovidDailyTotals(CovidModel):
         """
         docstring
         """
-        print("CovidMonthlyTotals getData()  kwargs=", kwargs)
+        #print("CovidMonthlyTotals getData()  kwargs=", kwargs)
         return self.__getData(self, *args, **kwargs)
 
     def __getData(self, *args, **kwargs):
         try:
-            print("CovidMonthlyTotals __getData()  kwargs=", kwargs)
+            #print("CovidMonthlyTotals __getData()  kwargs=", kwargs)
             if 'LOCATION' in kwargs:
                 
                 if kwargs['LOCATION']==CovidModel.LOCATION_ZIPCODE:
