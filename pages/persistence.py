@@ -77,7 +77,10 @@ class DjangoDB(Persistance):
         from django.db import connection
         try:
             with connection.cursor() as cursor:
-                cursor.execute(sql, data)
+                if data == None:
+                    cursor.execute(sql)
+                else:
+                    cursor.execute(sql, data)
             return cursor
         except:
             print ("DjangoDB._retrieveDBdata_() - unexpected error: ",sys.exc_info()[0])

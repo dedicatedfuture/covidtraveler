@@ -55,7 +55,8 @@ class CovidModel(ABC):
     LOCATION_ZIPCODE = 4
     LOCATION_COUNTY = 5
     LOCATION_STATE = 6
-    LOCATION_STATE_BY_ZIP = 9    
+    LOCATION_STATE_BY_ZIP = 9
+    LOCATIONS = 10    
     MESSAGES = 7
     ZIP_MULTIPLE_COUNTIES = 8
 
@@ -124,13 +125,109 @@ class CovidModelFactory(CovidModel):
                     covidModel = CovidMessages()                   
                     self.CovidData = covidModel.getData(*args,**kwargs)
                     self.DataAvailable=self.__isDataAvailable(self.CovidData)
-                    return  
+                    return
+
+                if kwargs['MODEL_TYPE'] == CovidModel.LOCATIONS:
+                    covidModel = CovidLocation()                   
+                    self.Locations = covidModel.getData(*args,**kwargs)
+                    self.DataAvailable=self.__isDataAvailable(self.Locations)
+                    return
 
             print ("CovidMessages.__createCovidModelInstance() - did not receive a recognizable model type - no model object instantiated. Args received = ",kwargs)
             return None
         except:
             print ("CovidMessages.__createCovidModelInstance() - unexpected error: ",sys.exc_info()[0])
             return None    
+
+class CovidLocation(CovidModel):
+    """
+    Note - all SQLs must return a column named 'Location' for this class to return a result. That column will contain the text that will be returned to the caller.
+    """
+    __argList = []
+    __argDict = {} 
+    __sql = ''
+    __data = None 
+
+    COUNTIES_BY_ZIP = 1
+    ZIP_IN_STATES = 2
+    UNIQUE_STATE = 3
+    COUNTIES_IN_STATE = 4
+
+    __sqlCountiesForZip="""
+    SELECT distinct CountyName as Location FROM covidtraveler_db.US_ZIP_FIPS
+    where zip = %s;
+    """ 
+    
+    __sqlZipState="""
+    SELECT distinctrow uzf.zip , sn.state_fullname as Location
+    FROM covidtraveler_db.US_ZIP_FIPS uzf
+    inner join covidtraveler_db.fips_county_state_names sn
+    on sn.fips = uzf.STcountyFIPS
+    where uzf.zip = %s
+    order by uzf.State;
+    """
+
+    __sqlAllStates="""
+    SELECT distinct state_fullname as Location
+    FROM covidtraveler_db.state_name_xref
+    order by state_fullname;
+    """
+
+    __sqlCountiesInState="""
+    SELECT county_basename as Location
+    FROM covidtraveler_db.fips_county_state_names
+    WHERE state_fullname = %s;
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+ 
+        __argList=args
+        __argDict=kwargs   
+              
+    def __getData(self, *args, **kwargs):
+        try:
+            self.dbReq = PersistanceRequest(ReturnType=kwargs['ReturnType'], SQL=self.__sql, whereParams=self.__data)
+            return CovidModel.persist.getData(self.dbReq)
+
+        except:
+            print ("CovidLocation._getData_() - unexpected error: ",sys.exc_info()[0])
+            return None        
+
+    def getData(self, *args, **kwargs):
+        try:
+            if 'LOCATION_TYPE' in kwargs:
+                if kwargs['LOCATION_TYPE'] == CovidLocation.COUNTIES_BY_ZIP: 
+                    self.__sql = CovidLocation.__sqlCountiesForZip
+                    self.__data=[kwargs['ZIPCODE']]
+
+                elif kwargs['LOCATION_TYPE'] == CovidLocation.ZIP_IN_STATES: 
+                    self.__sql = CovidLocation.__sqlZipState
+                    self.__data=[kwargs['ZIPCODE_COUNTIES']]
+
+                elif kwargs['LOCATION_TYPE'] == CovidLocation.UNIQUE_STATE: 
+                    self.__sql=CovidLocation.__sqlAllStates
+                    self.__data=None
+
+                elif kwargs['LOCATION_TYPE'] == CovidLocation.COUNTIES_IN_STATE: 
+                    self.__sql=CovidLocation.__sqlCountiesInState
+                    self.__data=[kwargs['ZIPCODE_STATE']]
+
+            else:
+                print ("CovidLocation.getData() - missing expected key LOCATION_TYPE in argument list - received: ",kwargs)
+                return None
+            
+            self.result = self.__getData(SQL=self.__sql, whereParams=self.__data, **kwargs)
+            self.__msg = [d.get('Location', None) for d in self.result]
+
+            if self.__msg != None:
+                return self.__msg
+            else:
+                return None
+        except:
+            print ("CovidLocation.getData() - unexpected error: ",sys.exc_info()[0])
+            return None
+
 
 class CovidMessages(CovidModel):
     """

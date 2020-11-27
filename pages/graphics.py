@@ -254,6 +254,16 @@ class DualPlotGraph(Graphic):
                 print("DualPlotGraph.__constructImage() - no state name provided - exiting early")
                 return None
 
+            # if 'COUNTY_DATA' in kwargs:
+            #     county_data = kwargs['COUNTY_DATA']
+            # elif 'STATE_DATA' in kwargs:
+            #     state_data = kwargs['STATE_DATA']
+            # elif 'STATE' in kwargs:
+            #     state_name = kwargs['STATE']
+            # elif
+            #     print("DualPlotGraph.__constructImage() - no state name provided - exiting early")
+            #     return None
+
             dates = [d['event_day'] for d in county_data if 'event_day' in d]
             # remove dupe dates from list
             dates = list(dict.fromkeys(dates))

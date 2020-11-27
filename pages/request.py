@@ -15,44 +15,45 @@ class Request:
  
     def __init__(self,request, requestType=None):
         """
-        Initialize the Request class instance
+        Initialize the Request class instance and parse key info from the request
+        to set member data. 
         """
-        self._request_ = request
+        self.request = request
 
         if request.POST.get("zipCode")!=None:
-            self._zip_ = request.POST.get("zipCode")
+            self.__zip = request.POST.get("zipCode")
         else:
-            self._zip_ = ''
-        self.zip = self._zip_
+            self.__zip = ''
+        self.zip = self.__zip
         
         if request.POST.get("state")!=None:           
-            self._state_ = request.POST.get("state")
+            self.__state = request.POST.get("state")
         else:
-            self._state_ = ''
-        self.state = self._state_
+            self.__state = ''
+        self.state = self.__state
         
         if request.POST.get("countyChoice")!=None:
-            self._county_ = request.POST.get("countyChoice")
+            self.__county = request.POST.get("countyChoice")
         else:
-            self._county_ = ''
-        self.county = self._county_
+            self.__county = ''
+        self.county = self.__county
 
         if requestType==None:
-            self._reqType_ = Request.PAGE_REQUEST
+            self.__reqType = Request.PAGE_REQUEST
         else:
-            self._reqType_ = Request.AJAX_REQUEST
-        self.requestType = self._reqType_
+            self.__reqType = Request.AJAX_REQUEST
+        self.requestType = self.__reqType
 
     def search_type(self):
-        if len(self._zip_) > 0:
+        if len(self.__zip) > 0:
             #this is a zip-only search
             return Request.ZIPCODE        
-        if len(self._state_) > 0 and len(self._county_) > 0:
+        if len(self.__state) > 0 and len(self.__county) > 0:
             #this is a combination state/county search
             return Request.STATE_COUNTY
-        if len(self._state_) > 0 :
+        if len(self.__state) > 0 :
             #this is a state-only search
             return Request.STATE_ONLY
-        if len(self._county_) > 0 :
+        if len(self.__county) > 0 :
             #this is a county-only search
             return Request.COUNTY_ONLY
