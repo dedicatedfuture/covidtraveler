@@ -19,7 +19,12 @@ def index(request):
 			director = Director()
 			director.setBuilder(searchBuilder)
 			context = director.getSearchResults(REQUEST=requestObj)
-			return render(request, 'pages/search_results.html', context)
+			if requestObj.errConditionDetected():
+				err_msg = requestObj.errMsg
+				context = {'err_msg': err_msg}
+				return render(request, 'pages/errorpage.html', context)
+			else:
+				return render(request, 'pages/search_results.html', context)
 
 		else: # home page was just invoked, so render the form that gets user input
 			req = Request(request)

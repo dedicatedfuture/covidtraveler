@@ -4,7 +4,7 @@
 import sys
 from abc import ABC, abstractmethod
 from pages.request import Request
-from pages.models import CovidMessages, CovidModelFactory, CovidModel
+from pages.models import CovidMessages, CovidModelFactory, CovidModel, CovidLocationInfo
 from pages.persistence import DjangoDB
 from pages.graphics import GraphicsFactory, Graphic
 from django.shortcuts import render
@@ -27,8 +27,14 @@ class Director:
             
         searchResults = SearchResults()
 
+        # test for data available - if not, exit early and provide error text
+        if self.__builder.isDataAvailableForRequest(REQUEST=self.__request) == False:
+            self.__request.setErrMsg("No data was returned for zip code " + self.__request.zip)
+            #SearchResults.context['msg_text']=str(covidInfoMsgs).strip('"')
+            return
+
         # get aggregate graph
-        aggGraph = self.__builder.getCovidAggregateCasesDeceased(REQUEST=self.__request)
+        aggGraph = self.__builder.getCovidAggregateCasesDeceased(REQUEST=self.__request)        
         searchResults.setAggregateCovid(aggGraph)
         SearchResults.context['graph1']=aggGraph
 
@@ -37,13 +43,13 @@ class Director:
         searchResults.setMonthlyCovid(monthlyGraph)
         SearchResults.context['graph2']=monthlyGraph
         
-        #get daily cases/deceased graphs
+        #get daily cases/deceased graphs - this will be re-factored if time permits to break out cases/deceased
         dailyCasesGraph = self.__builder.getCovidDailyCases(REQUEST=self.__request)
         searchResults.setDailyCases(dailyCasesGraph)
         SearchResults.context['graph3']=dailyCasesGraph['CASES_GRAPH']
         SearchResults.context['graph4']=dailyCasesGraph['DECEASED_GRAPH']
 
-        # #get daily deceased graph - this will be re-factored if time permits
+        # #get daily deceased graph 
         # dailyDeceasedGraph = self.__builder.getCovidDailyDeceased(REQUEST=self.__request)
         # searchResults.setDailyDeceased(dailyDeceasedGraph)
         # SearchResults.context['graph4']=dailyDeceasedGraph
@@ -61,8 +67,10 @@ class Director:
 
 
 class Builder:
+    def isDataAvailableForRequest(self, **kwargs) : pass
     def getCovidAggregateCasesDeceased(self, **kwargs): pass
     def getCovidMonthlyCasesDeceased(self, **kwargs): pass
+    def getCovidDailyCases(self, **kwargs): pass
     def getCovidDailyDeceased(self, **kwargs): pass
     def getCovidInfoMsgs(self, **kwargs): pass
 
@@ -70,12 +78,13 @@ class SearchResults:
     context = {}
 
     def __init__(self):
+        SearchResults.context = {}
         self.__aggregateCovid = None
         self.__monthlyCovid = None
         self.__dailyCases = None
         self.__dailyDeceased = None
         self.__covidInfoMsgs = None
- 
+    
     def setAggregateCovid(self, aggGraph):
         self.__aggregateCovid = aggGraph
 
@@ -92,7 +101,6 @@ class SearchResults:
         self.__covidInfoMsgs = covidInfoMsgs
 
     def getSearchContext(self):
-
         return SearchResults.context
 
 
@@ -107,6 +115,16 @@ class SearchResultsBuilder(Builder):
             self.__request = kwargs['REQUEST']
         else:
             self.__request = None
+
+    def isDataAvailableForRequest(self, **kwargs):
+        print("CovidLocation created") 
+        dataAvailable = CovidLocation(**kwargs)
+        return dataAvailable.isDataAvailableForZip()
+    
+    def getCovidInfoMsgs(self, **kwargs): 
+        print("CovidInfoMsgs created") 
+        getCovidInfoMsgs = CovidInfoMsgs(**kwargs)
+        return getCovidInfoMsgs.getMsgInfo()
 
     def getCovidAggregateCasesDeceased(self, **kwargs): 
         print("CovidAggregateCasesDeceased created")
@@ -127,11 +145,6 @@ class SearchResultsBuilder(Builder):
         print("CovidDailyCases created")         
         covidDailyCases = CovidDailyCases(**kwargs)
         return covidDailyCases.getImage()
-
-    def getCovidInfoMsgs(self, **kwargs): 
-        print("CovidInfoMsgs created") 
-        getCovidInfoMsgs = CovidInfoMsgs(**kwargs)
-        return getCovidInfoMsgs.getMsgInfo()
 
 # SearchResults parts
 
@@ -251,7 +264,8 @@ class CovidDailyCases:
                 if resultSet.DataAvailable:
                     zip_state = resultSet.CovidData
                 else:
-                    print("CovidDailyCases.getImage().1 - no data returned for zipcode = ", self.__requestObj.zip)
+                    #print("CovidDailyCases.getImage().1 - no data returned for zipcode = ", self.__requestObj.zip)
+                    self.__requestObj.setErrMsg("No data was available for zip code " + self.__requestObj.zip)
                     return None
 
                 # get county data
@@ -362,7 +376,7 @@ class CovidDailyDeceased:
 
 class CovidInfoMsgs:
     """
-    Constructs text info related to a Covid search
+    Constructs info messages related to a Covid search
     """
     def __init__(self, **kwargs):
         if 'REQUEST' in kwargs:
@@ -392,3 +406,26 @@ class CovidInfoMsgs:
             print ("CovidInfoMsgs.getMsgInfo().1 - unexpected error: ",sys.exc_info()[0])
             return msg_text 
 
+
+class CovidLocation:
+    """
+    Constructs location info related to a Covid search
+    """
+    def __init__(self, **kwargs):
+        if 'REQUEST' in kwargs:
+            self.__requestObj = kwargs['REQUEST']
+        else:
+            return None
+
+    def isDataAvailableForZip(self):
+	    # determin if data available for request - currently only supports zip code test
+        try:
+            #data = CovidModelFactory(MODEL_TYPE = CovidModel.LOCATIONS, LOCATION=CovidLocation.DATA_PRESENT_FOR_ZIP, ZIPCODE=self.__requestObj.zip, ReturnType=DjangoDB.DICTIONARIES )
+            data = CovidModelFactory(MODEL_TYPE = CovidModel.LOCATIONS, LOCATION_TYPE=CovidLocationInfo.DATA_PRESENT_FOR_ZIP, ZIPCODE=self.__requestObj.zip, ReturnType=DjangoDB.DICTIONARIES )
+            if data.DataAvailable:
+                return True
+            else:
+                return False		
+        except:
+            print ("CovidLocation.isDataAvailable() - unexpected error: ",sys.exc_info()[0])
+            return False         

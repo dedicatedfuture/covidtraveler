@@ -44,6 +44,17 @@ class Request:
             self.__reqType = Request.AJAX_REQUEST
         self.requestType = self.__reqType
 
+        self.errMsg = ''
+
+    def setErrMsg(self, errText):
+        self.errMsg=errText
+
+    def errConditionDetected(self):
+        if len(self.errMsg) > 0:
+            return True
+        else:
+            return False
+
     def search_type(self):
         if len(self.__zip) > 0:
             #this is a zip-only search

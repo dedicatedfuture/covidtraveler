@@ -1,11 +1,11 @@
 from django import forms
-from pages.models import Feedback, CovidMessages, CovidModelFactory, CovidModel, CovidLocation
+from pages.models import Feedback, CovidMessages, CovidModelFactory, CovidModel, CovidLocationInfo
 from pages.persistence import DjangoDB, PersistanceRequest
 
 class ZipCodeForm(forms.Form):
 	zipCode = forms.CharField(label='Zip code',required=True)
-	#stateChoice = forms.ChoiceField(label='State choice ',)
-	#countyChoice = forms.ChoiceField(label='County choice ')
+	stateChoice = forms.ChoiceField(label='State choice ',)
+	countyChoice = forms.ChoiceField(label='County choice ')
 
 	def __init__(self, req, *args, **kwargs):
 		super().__init__(*args)
