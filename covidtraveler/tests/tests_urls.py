@@ -27,5 +27,7 @@ class TestUrls(SimpleTestCase):
 
 	def test_search_results_is_resolved(self):
 		url = reverse('search_results')
-		self.assertEquals(resulve(url).func.view_class, search_results)
+		print("search result test: ")
+		print(resolve(url))
+		self.assertEquals(resolve(url).func, search_results)
 
