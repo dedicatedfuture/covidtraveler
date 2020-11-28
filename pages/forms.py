@@ -4,19 +4,19 @@ from pages.persistence import DjangoDB, PersistanceRequest
 
 class ZipCodeForm(forms.Form):
 	zipCode = forms.CharField(label='Zip code',required=True)
-	stateChoice = forms.ChoiceField(label='State choice ',)
-	countyChoice = forms.ChoiceField(label='County choice ')
+	# stateChoice = forms.ChoiceField(label='State choice ',)
+	# countyChoice = forms.ChoiceField(label='County choice ')
 
 	def __init__(self, req, *args, **kwargs):
 		super().__init__(*args)
-		if req.state != None:
-			self.fields['stateChoice'].choices=self.getStateChoices(req)
-			if len(req.state)==0:
-				req.state = self.fields['stateChoice'].choices[0][1]
-			self.fields['countyChoice'].choices=self.getCountyChoices(req)
-		else:
-			req.state = self.fields['stateChoice'].choices[0][1]
-			self.fields['countyChoice'].choices=self.getCountyChoices(req)
+		# if req.state != None:
+		# 	self.fields['stateChoice'].choices=self.getStateChoices(req)
+		# 	if len(req.state)==0:
+		# 		req.state = self.fields['stateChoice'].choices[0][1]
+		# 	self.fields['countyChoice'].choices=self.getCountyChoices(req)
+		# else:
+		# 	req.state = self.fields['stateChoice'].choices[0][1]
+		# 	self.fields['countyChoice'].choices=self.getCountyChoices(req)
 
 
 	def getStateChoices(self,req):
