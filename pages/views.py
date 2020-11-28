@@ -47,6 +47,9 @@ def get_county(request):
 def errorpage(request):
 	return render(request, 'pages/errorpage.html')
 
+def search_results(request):
+	return render(request, 'pages/search_results.html')
+
 def contactus(request):
 
 	if request.method == 'POST':
