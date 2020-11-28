@@ -3,20 +3,23 @@
 <link href="{% static '/css/normalize.css' %}" rel="stylesheet" type="text/css">
 <link href="{% static '/css/main.css' %}" rel="stylesheet" type="text/css">
 {%block content %}
-	<h1>Contact Us</h1>
-		<ul>
-			<li><a href="mailto:zerega85@gmail.com">Bill Zerega</a></li>
-			<li><a href="mailto:arsipansheria@gmail.com">Arsi Pansheria</a></li>
-			<li><a href="mailto:tomshannon58@gmail.com">Tom Shannon</a></li>
-		</ul>
 
-		<br><br>
+	<div id="contactusOuter">
+		<h1>Contact Us</h1>
+			<ul>
+				<li><a href="mailto:zerega85@gmail.com">Bill Zerega</a></li>
+				<li><a href="mailto:arsipansheria@gmail.com">Arsi Pansheria</a></li>
+				<li><a href="mailto:tomshannon58@gmail.com">Tom Shannon</a></li>
+			</ul>
 
-		<form action="" method="post" class="forms">
-			{%csrf_token%}
-			{{ form }}
-			<br>
-			<br>
-			<input type="submit">
-		</form>
+			<br><br>
+
+			<form action="" method="post" class="forms">
+				{%csrf_token%}
+				{{ form }}
+				<br>
+				<br>
+				<input type="submit">
+			</form>
+	</div>
 {% endblock content %}

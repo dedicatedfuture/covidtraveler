@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from pages import request
+from pages.request import Request
 import json
 
 
@@ -26,9 +26,15 @@ class TestViews(TestCase):
 		self.assertTemplateUsed(response, 'base.html')
 
 	def test_index_POST(self):
-		response = self.client.post(self.index)
-		self.assertEquals(response.status_code, 302)
+		response = self.client.post(self.index, {'zipCode': 19061})
+		#req = Request(response)
+		self.assertEquals(response.status_code, 200)
 		self.assertTemplateUsed(response, 'pages/search_results.html')
+
+	def test_index_error_POST(self):
+		response = self.client.post(self.index)
+		self.assertEquals(response.status_code, 200)
+		self.assertTemplateUsed(response, 'pages/errorpage.html')
 
 	def test_contactus_GET(self):
 		response = self.client.get(self.contactus)
