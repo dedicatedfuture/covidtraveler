@@ -22,9 +22,9 @@ class Request:
 
         if request.POST.get("zipCode")!=None:
             self.__zip = request.POST.get("zipCode")
-        else:
-            self.__zip = ''
-        self.zip = self.__zip
+        #else:
+        #    self.__zip = ''
+        #self.zip = self.__zip
         
         if request.POST.get("state")!=None:           
             self.__state = request.POST.get("state")

@@ -89,10 +89,7 @@ WSGI_APPLICATION = 'covidtraveler.wsgi.application'
 
 COVIDTRAVELERDBPASSWORD = os.environ.get('COVIDTRAVELERDBPASSWORD')
 COVIDTRAVELERAWSHOST = os.environ.get('COVIDTRAVELERAWSHOST')
-print('aws host:')
-print(COVIDTRAVELERAWSHOST)
-print('database password:')
-print(COVIDTRAVELERDBPASSWORD)
+
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
