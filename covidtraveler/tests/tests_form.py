@@ -56,7 +56,3 @@ class TestForms(TestCase):
 
 		self.assertFalse(form.is_valid())
 		self.assertEquals(len(form.errors), 3)
-
-
-
-
