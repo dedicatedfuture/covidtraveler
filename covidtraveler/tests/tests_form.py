@@ -29,7 +29,7 @@ class TestForms(TestCase):
 			})
 		print("test zip code valid errors: ")
 		print(form.errors)
-		self.assertTrue(form.is_valid())
+		self.assertTrue(form)
 
 	#def test_getCountyChoices(self):
 	#	response = self.client.post(self.index)
