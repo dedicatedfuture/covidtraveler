@@ -35,14 +35,14 @@ def index(request):
 		print ("views.py index() - unexpected error: ",sys.exc_info()[0])
 		return render(request, 'pages/errorpage.html')
 
-def get_county(request):
-	from django.http import JsonResponse
-	if request.method =='POST' and request.is_ajax():
-		req = Request(request, Request.AJAX_REQUEST)
-		form = ZipCodeForm(req)
-		retval = form.getCountyChoicesAsDict(req)
-		retval=[('county', 'Kent'), ('county', 'New Castle'), ('county', 'Sussex')]
-		return JsonResponse(retval, safe=False)		
+#def get_county(request):
+#	from django.http import JsonResponse
+#	if request.method =='POST' and request.is_ajax():
+#		req = Request(request, Request.AJAX_REQUEST)
+#		form = ZipCodeForm(req)
+#		retval = form.getCountyChoicesAsDict(req)
+#		retval=[('county', 'Kent'), ('county', 'New Castle'), ('county', 'Sussex')]
+#		return JsonResponse(retval, safe=False)		
 
 def errorpage(request):
 	return render(request, 'pages/errorpage.html')
