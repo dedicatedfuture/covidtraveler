@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<suite name="Refression">
+
+	<listeners>
+	<listener class-name="resources.Listeners"/>
+	</listeners>
+	
+  <test thread-count="5" name="homePageSuite">
+    <classes>
+      <class name="homePageSuite.VerifyWebsiteURL"/>
+      <class name="homePageSuite.VerifyHomePageNavigation"/>
+      <class name="homePageSuite.VerifyHomePageUI"/>
+      <class name="homePageSuite.VerifyInvalidZipCode"/>
+      <class name="homePageSuite.VerifyValidZipCode"/>
+    </classes>
+  </test>
+  <test thread-count="5" name="contactPageSuite">
+    <classes>
+      <class name="contactPageSuite.VerifyContactPageNavigation"/>
+      <class name="contactPageSuite.VerifyContactPageUI"/>
+      <class name="contactPageSuite.VerifyValidContactUsForm"/>
+    </classes>
+  </test>
+  <test thread-count="5" name="newsPageSuite">
+    <classes>
+      <class name="newsPageSuite.VerifyNewsPageNavigation"/>
+      <class name="newsPageSuite.VerifyNewsLink"/>
+      <class name="newsPageSuite.VerifyNewsLinksOpensInNewWindow"/>
+      <class name="newsPageSuite.VerifyNewsPageScrollFuntion"/>
+    </classes>
+  </test>
+  <test thread-count="5" name="aboutPageSuite">
+    <classes>
+      <class name="aboutPageSuite.VerifyAboutPageNavigation"/>
+      <class name="aboutPageSuite.VerifyAboutParagraphText"/>
+    </classes>
+  </test>
+</suite>
+
