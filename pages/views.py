@@ -104,6 +104,8 @@ def index(request):
 def errorpage(request):
 	return render(request, 'pages/errorpage.html')
 
+def search_results(request):
+	return render(request, 'pages/errorpage.html')
 
 # def errorpage(request):	# currently under development for v1.1
 # 	return render(request, 'pages/errorpage.html')
