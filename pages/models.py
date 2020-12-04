@@ -1,41 +1,39 @@
+"""! @brief COVID Traveler models package code"""
+
+##
+# @file models.py
+#
+# @brief models.py contains code that implements the models logic to access data on behalf of callers. With the exception of the Feedback class that uses the Django ORM for data access, all other model classes
+# are implemented using a Factory design pattern that inherit from the abstract CovidModel class.
+#
+## @section description_models Description
+# With the exception of the Feedback class which uses the Django ORM to access the database, all other classes inherit from CovidModel using a factory pattern. The factory class CovidModelFactory 
+# uses a parameterized approach to select a concrete class to support a caller's request for model functionality. The factory class can delegate to five other classes depending upon
+# the parameters passed:
+# 1. CovidLocationInfo
+# 2. CovidMessages
+# 3. CovidAggregateTotals
+# 4. CovidMonthlyTotals
+# 5. CovidDailyTotals
+#
+## @section libraries_models Libraries/Modules
+# - Django/Python imports:
+#  - sys from python
+#  - models from djangodb
+#  - ABC, abstractmethod from abc
+# - Application imports:
+#   - DjangoDB, PersistanceRequest from pages.persistence
+#
+## @section author_models Author(s)
+# - Created by Team #3 on 11/29/2020.
+# - Modified by Team #3 on 11/29/2020.
+#
+# Copyright (c) 2020 COVID Traveler Warning Team.  All rights reserved.
+
 from django.db import models
-from . persistence import DjangoDB, PersistanceRequest
+from pages.persistence import DjangoDB, PersistanceRequest
 from abc import ABC, abstractmethod
 import sys
-
-class UsZipFips(models.Model):
-    ziptable_id = models.AutoField(db_column='ZipTable_id', unique=True,primary_key=True)  # Field name made lowercase.
-    zip = models.CharField(max_length=255, blank=True, null=True)
-    countyname = models.CharField(db_column='CountyName', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    state = models.CharField(db_column='State', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    stcountyfips = models.CharField(db_column='STcountyFIPS', max_length=255, blank=True, null=True)  # Field name made lowercase.
- 
-    class Meta:
-        managed = False
-        db_table = 'US_ZIP_FIPS'
-
-class CovidFinalmasterTable(models.Model):
-    id = models.AutoField(unique=True,primary_key=True)
-    fips = models.CharField(db_column='FIPS', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    county = models.CharField(max_length=255, blank=True, null=True)
-    province_state = models.CharField(max_length=255, blank=True, null=True)
-    country_region = models.CharField(max_length=255, blank=True, null=True)
-    last_update = models.DateField(blank=True, null=True)
-    lat = models.FloatField(blank=True, null=True)
-    long_field = models.FloatField(db_column='long_', blank=True, null=True)  # Field renamed because it ended with '_'.
-    confirmed = models.FloatField(blank=True, null=True)
-    deaths = models.FloatField(blank=True, null=True)
-    recovered = models.FloatField(blank=True, null=True)
-    active_case = models.FloatField(blank=True, null=True)
-    daily_confirmed_case = models.FloatField(blank=True, null=True)
-    daily_deaths_case = models.FloatField(blank=True, null=True)
- 
-    class Meta:
-        managed = False
-        db_table = 'covid_finalmaster_table'
-    
-    def __str__(self):
-        return self.fips
 
 class Feedback(models.Model):
     name = models.CharField(max_length=100)
@@ -55,10 +53,8 @@ class CovidModel(ABC):
     LOCATION_ZIPCODE = 4
     LOCATION_COUNTY = 5
     LOCATION_STATE = 6
-    LOCATION_STATE_BY_ZIP = 9
-    LOCATIONS = 10    
-    MESSAGES = 7
-    ZIP_MULTIPLE_COUNTIES = 8
+    LOCATIONS = 7
+    MESSAGES = 8
 
     persist = DjangoDB()
 
@@ -87,10 +83,12 @@ class CovidModelFactory(CovidModel):
         try:
             if self.CovidData != None:
                 if self.CovidData == []:
+                    return False          
+                if self.CovidData == [None]:
                     return False
-                #if type(self.CovidData[0]) == >                
-                if len(self.CovidData[0])>0:
-                    return True                    
+                else:               
+                    if len(self.CovidData[0])>0:
+                        return True                  
             else:
                 return False
         except:
@@ -100,7 +98,7 @@ class CovidModelFactory(CovidModel):
     
     def __createCovidModelInstance(self, *args, **kwargs):
         """
-        Use the args to identify the ideal class
+        Use the args to identify the appropriate model class
         """
         try:
             if 'MODEL_TYPE' in kwargs:

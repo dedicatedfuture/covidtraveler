@@ -9,15 +9,9 @@ from io import BytesIO
 
 class Graphic(ABC):
 
-    TO_DATE_TOTALS_CASES_DECEASED = 1
-    MONTHLY_TOTALS_CASES_DECEASED = 2
-    PAST_30_DAYS = 3
-    LOCATION_ZIPCODE = 4
-    LOCATION_COUNTY = 5
-    LOCATION_STATE = 6
-    PIE = 7
-    STACKPLOT = 8
-    DUAL_PLOT = 9
+    PIE = 1
+    STACKPLOT = 2
+    DUAL_PLOT = 3
 
     def __init__(self, *args, **kwargs):
         super().__init__()
@@ -28,7 +22,7 @@ class Graphic(ABC):
 
 class GraphicsFactory(Graphic):
     """
-    This concrete class uses a simple parameterized approach to constructing the required graphics subclass
+    This factory class uses a parameterized approach to constructing the required graphics subclass
     objects needed by the consumer.
     """
     def __init__(self, *args, **kwargs):
@@ -121,7 +115,7 @@ class PieGraph(Graphic):
                     shadow=True, startangle=90)
             ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
             ax1.legend(loc='upper left',fancybox=True)
-            ax1.set_title(str(request_data[0]['County']) + " County, " + str(request_data[0]['State']) + " - Ratio of Confirmed to Deceased")
+            ax1.set_title(kwargs['LOCATION'] + " - " + str(request_data[0]['County']) + " County, " + str(request_data[0]['State']) + " - Ratio of Confirmed to Deceased")
 
             # save and return
             buf = BytesIO()

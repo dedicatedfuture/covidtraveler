@@ -1,4 +1,18 @@
-#pragma: no cover
+##
+# @file settings.py
+#
+# @brief settings.py provides runtime environment information used by Django to identify resources needed for operation.
+#
+# @section description_manage Description
+# This file contains environment variables and structs used by Django at runtime. For more information regarding individual elements 
+# please consult the Django website at https://www.djangoproject.com/
+#
+# @section author_manage Author(s)
+# - Created by Team #3 on 11/28/2020.
+# - Modified by Team #3 on 11/28/2020.
+#
+# Copyright (c) 2020 COVID Traveler Warning Team.  All rights reserve
+
 """
 Django settings for covidtraveler project.
 
@@ -24,15 +38,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = os.environ.get('COVIDTRAVELERSECRETKEY')
+SECRET_KEY = '_0q=j%(gllez+&g%2=!tue7k5-f6f=m(8183=an&a0b^uej7$2'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['calm-spire-40582.herokuapp.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['calm-spire-40582.herokuapp.com', '127.0.0.1', '*']
 
-
+GRAPH_MODELS = {
+  'all_applications': True,
+  'group_models': True,
+}
 
 # Application definition
 
@@ -87,8 +104,10 @@ WSGI_APPLICATION = 'covidtraveler.wsgi.application'
 
 
 
+
 COVIDTRAVELERDBPASSWORD = os.environ.get('COVIDTRAVELERDBPASSWORD')
 COVIDTRAVELERAWSHOST = os.environ.get('COVIDTRAVELERAWSHOST')
+
 
 
 # Database
@@ -102,7 +121,7 @@ DATABASES = {
         'PASSWORD': COVIDTRAVELERDBPASSWORD,
         'HOST': COVIDTRAVELERAWSHOST,
         'PORT': '3306',
-   }
+    }
 }
 # restored default database to complete test suite
 #DATABASES = {
@@ -150,8 +169,6 @@ USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
-
-MEDIA_URL = '/images/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'covidtraveler/static'),
