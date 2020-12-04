@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% load static %}
+<link href="{% static '/css/normalize.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static '/css/main.css' %}" rel="stylesheet" type="text/css">
+
+{%block content %}
+	{% autoescape off %}
+	<div class="results-outer">
+		
+		<div class="results">
+			<div class="errorMessageSearchResults">
+												{{ msg_text }} <br><br>
+
+			</div>
+
+			<table align="center" width="100%" cellpadding="0" cellspacing="0" border="0" class="fullWidth mainTable" style="background-color: #ffd166;">
+				<tr>
+						<td align="left" style="vertical-align:top; padding: 30px 10px;">
+							<table width="100%" align="left" cellpadding="0" cellspacing="0" border="0">
+								<tr>
+									<td align="left" style="vertical-align: top;"><table width="500" align="left" cellpadding="0" cellspacing="0" border="0" class="fullWidth">
+										<tr>
+											<td align="center" style="vertical-align:middle; padding:12px; font-family: Arial,Helvetica, sans-serif; font-size:18px; color: #000000;"> <img src="{{ graph1|safe }}"/>
+
+											</td>
+										</tr>
+									</table>
+									
+									<table width="500" align="left" cellpadding="0" cellspacing="0" border="0" class="fullWidth">
+										<tr>
+											<td align="center" style="vertical-align:top; padding:12px; font-family: Arial, Helvetica, sans-serif; font-size:18px; color:#000000;"> <table>
+							<tr>
+								<td style="text-align: center"><img src="{% static 'images/maskRedhead.jpg' %}" class="tableImages" ></td>
+							</tr>
+							<tr>
+								<td class="table-text">
+									
+									A new investigation showed that by mid-August, the death rate in those hospitalized with coronavirus-related illness had dropped from 25.6 percentage points to about 7.6 percentage points. Led by researchers at NYU Grossman School of Medicine, the study showed that a younger, healthier group of people were getting infected and were arriving at the hospital with less severe symptoms than those infected in the spring. <br><br>
+
+However, the researchers’ analysis showed that these factors accounted for only part of the improvement in survival. The rest, they suspect, resulted from healthcare providers’ growing experience with the coronavirus. For example, physicians learned that resting COVID-19 patients on their stomachs rather than their backs and delaying the use of ventilators as long as possible were more effective practices, say the study authors. Drugs likely helped as well. In addition, other factors such as decreasing hospital volumes, less exposure to infection, and earlier testing and treatment, may have played a role.<br><br>
+
+<a href="https://nyulangone.org/news/study-helps-explain-declines-death-rates-covid-19" target="_blank">Source</a>
+								</td>
+							</tr>
+						</table></td>
+										</tr>
+									</table></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td align="left" style="vertical-align:top; padding: 30px 10px;">
+							<table width="100%" align="left" cellpadding="0" cellspacing="0" border="0">
+								<tr>
+									<td align="left" style="vertical-align: top;"><table width="500" align="left" cellpadding="0" cellspacing="0" border="0" class="fullWidth">
+										<tr>
+											<td align="center" style="vertical-align:middle; padding:12px; font-family: Arial,Helvetica, sans-serif; font-size:18px; color: #000000;"><table>
+							<tr>
+								<td style="text-align: center"><img src="{% static 'images/washhands.jpg' %}" class="tableImages"></td>
+							</tr>
+							<tr>
+								<td class="table-text">Washing hands can keep you healthy and prevent the spread of respiratory and diarrheal infections from one person to the next. Germs can spread from other people or surfaces when you:
+									<ul>
+										<li>Touch your eyes, nose, and mouth with unwashed hands</li>
+										<li>Prepare or eat food and drinks with unwashed hands</li>
+										<li>Touch a contaminated surface or objects</li>
+										<li>Blow your nose, cough, or sneeze into hands and then touch other people’s hands or common objects</li>
+									</ul>
+									</td>
+							</tr>
+						</table>
+
+											</td>
+										</tr>
+									</table>
+								
+									<table width="500" align="left" cellpadding="0" cellspacing="0" border="0" class="fullWidth">
+										<tr>
+											<td align="center" style="vertical-align:top; padding:12px; font-family: Arial, Helvetica, sans-serif; font-size:18px; color:#000000;"> <img src="{{ graph2|safe }}"/></td>
+										</tr>
+									</table></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td align="left" style="vertical-align:top; padding: 30px 10px;">
+							<table width="100%" align="left" cellpadding="0" cellspacing="0" border="0">
+								<tr>
+									<td align="left" style="vertical-align: top;"><table width="500" align="left" cellpadding="0" cellspacing="0" border="0" class="fullWidth">
+										<tr>
+											<td align="center" style="vertical-align:top; padding:12px; font-family: Arial,Helvetica, sans-serif; font-size:18px; color: #000000;"> <img src="{{ graph3|safe }}"/>
+
+											</td>
+										</tr>
+									</table>
+									
+									<table width="500" align="left" cellpadding="0" cellspacing="0" border="0" class="fullWidth">
+										<tr>
+											<td align="center" style="vertical-align:top; padding:12px; font-family: Arial, Helvetica, sans-serif; font-size:18px; color:#000000;"> <table>
+							<tr>
+								<td style="text-align: center; vertical-align:middle;"><img src="{% static 'images/social-distancing.jpg' %}" class="tableImages" ></td>
+							</tr>
+							<tr>
+								<td class="table-text">
+									<strong>11/5/2020</strong> The U.S. has reached another grim coronavirus milestone, surpassing 100,000 new confirmed cases in a single day for the first time since the pandemic reached the country more than nine months ago.<br><br>
+
+The record 102,831 cases reported on Thursday by Johns Hopkins University tops the more than 99,321 cases set just days ago, on Oct. 30. The university reported 1,097 additional COVID-19 deaths for the same day.
+
+<a href="https://www.npr.org/sections/coronavirus-live-updates/2020/11/05/931663592/u-s-sets-coronavirus-record-with-daily-new-cases-pushing-past-100-000" target="_blank">Read the full Article</a>
+								</td>
+							</tr>
+						</table></td>
+										</tr>
+									</table></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td align="left" style="vertical-align:top; padding: 30px 10px 150px 10px;">
+							<table width="100%" align="left" cellpadding="0" cellspacing="0" border="0">
+								<tr>
+									<td align="left" style="vertical-align: top;"><table width="500" align="left" cellpadding="0" cellspacing="0" border="0" class="fullWidth">
+										<tr>
+											<td align="center" style="vertical-align:top; padding:12px; font-family: Arial,Helvetica, sans-serif; font-size:18px; color: #000000;"><table>
+							<tr>
+								<td style="text-align: center; vertical-align:middle;"><img src="{% static 'images/coronavirusDeathScale.png' %}" class="tableImages"></td>
+							</tr>
+							<tr>
+								
+
+								<td class="table-text" style="vertical-align:middle;"><h2>Estimating COVID-19 Mortality</h2>
+									It is difficult to get an accurate mortality rate with relation to COVID-19 for a number factors that can warp the data. 
+									<ul>
+										<li>At the start of an outbreak, those cases detected are more likely to be severe or fatal. Patients with severe illness are more likely to present at health facilities and to be confirmed by laboratory test.</li>
+										<li>Delays in reporting deaths can lead to underestimation of the CFR(Case Fatality Rate).</li>
+										<li>COVID-19 cases and deaths occurring in the community that go undetected or are reported late because they were incorrectly attributed to other causes.</li>
+										<li>If deaths are more likely to be reported than recoveries, an overestimation of CFR will occur. The reverse leads to underestimation.</li>
+									</ul>
+									<a href="https://www.who.int/news-room/commentaries/detail/estimating-mortality-from-covid-19" target="_blank">World Health Organization on COVID-19 Mortality</a>
+									</td>
+							</tr>
+						</table>
+
+											</td>
+										</tr>
+									</table>
+								
+									<table width="500" align="left" cellpadding="0" cellspacing="0" border="0" class="fullWidth">
+										<tr>
+											<td align="center" style="vertical-align:top; padding:12px; font-family: Arial, Helvetica, sans-serif; font-size:18px; color:#000000;"> <img src="{{ graph4|safe }}"/></td>
+										</tr>
+									</table></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+
+
+			</table>
+			
+			
+	
+		</div>
+	</div>
+	{% endautoescape %}	
+
+{% endblock content %}

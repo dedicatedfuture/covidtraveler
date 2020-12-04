@@ -1,0 +1,1 @@
+web: gunicorn covidtraveler.wsgi --log-file -
