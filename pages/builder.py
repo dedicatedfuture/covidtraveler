@@ -162,7 +162,7 @@ class Builder(ABC):
 
 class SearchResults:
     """! 
-    SearchResults is a concrete class that provides setter methods used by the Builder to populate the instance members with informational messages and graphs. 
+    SearchResults is a class that aggregates data and images used to satisfy a search request. 
     """
     context = {}
 
@@ -242,7 +242,7 @@ class SearchResultsBuilder(Builder):
         @param kwargs A dictionary of parameters passed from the caller to the instance. This method passes kwargs to the constructor of CovidLocation().
         """         
         dataAvailable = CovidLocation(**kwargs)
-        return dataAvailable.isDataAvailableForZip()
+        return dataAvailable.isDataAvailable()
     
     def getCovidInfoMsgs(self, **kwargs): 
         """! 
@@ -250,7 +250,7 @@ class SearchResultsBuilder(Builder):
         @param kwargs A dictionary of parameters passed from the caller  to the instance. This method passes kwargs to the constructor of CovidInfoMsgs().
         """          
         getCovidInfoMsgs = CovidInfoMsgs(**kwargs)
-        return getCovidInfoMsgs.getMsgInfo()
+        return getCovidInfoMsgs.getMsgText()
 
     def getCovidAggregateCasesDeceased(self, **kwargs): 
         """! 
@@ -287,8 +287,16 @@ class SearchResultsBuilder(Builder):
         return covidDailyCases.getImage()
 
 # SearchResults parts
+class CovidContent(ABC):
+    """!
+    Abstract class for all classes that construct a representation of Covid data in a graphical and/or textual format
+    """    
+    def __init__(self, **kwargs):pass
+    def getImage(self): pass
+    def getMsgText(self): pass
+    def isDataAvailable(self): pass
 
-class CovidAggregateCasesDeceased:
+class CovidAggregateCasesDeceased(CovidContent):
     """!
     Constructs a graphic representing Aggregate proportions of COVID cases vs. deceased
     """
@@ -301,6 +309,9 @@ class CovidAggregateCasesDeceased:
             self.__requestObj = kwargs['REQUEST']
         else:
             return None
+    def isDataAvailable(self): pass
+
+    def getinfo(self): pass
 
     def getImage(self):       
         """! 
@@ -343,7 +354,7 @@ class CovidAggregateCasesDeceased:
             print ("CovidAggregateCasesDeceased.getImage().3 - unexpected error: ",sys.exc_info()[0])
             return None   
 
-class CovidMonthlyCasesDeceased:
+class CovidMonthlyCasesDeceased(CovidContent):
     """!
     Constructs a graphic presenting monthly counts of COVID cases vs. deceased
     """
@@ -356,6 +367,8 @@ class CovidMonthlyCasesDeceased:
             self.__requestObj = kwargs['REQUEST']
         else:
             return None
+
+    def getinfo(self): pass
     
     def getImage(self):       
         """! 
@@ -398,7 +411,7 @@ class CovidMonthlyCasesDeceased:
             return None   
 
 
-class CovidDailyCases:
+class CovidDailyCases(CovidContent):
     """!
     Constructs a graphic presenting daily counts of COVID county vs. state cases and deceased 
     """
@@ -412,7 +425,10 @@ class CovidDailyCases:
         else:
             return None
     
-        
+    def isDataAvailable(self): pass
+
+    def getinfo(self): pass
+
     def getImage(self):       
         """! 
         Using the Request.search_type() method defined on the instance Request object, this method performs a zipcode-based the search to retrieve data and generate graphs. It 
@@ -477,7 +493,7 @@ class CovidDailyCases:
             return None   
 
 
-class CovidDailyDeceased:
+class CovidDailyDeceased(CovidContent):
     """!
     Constructs a graphic presenting daily counts of COVID county vs. state deceased. This is dormant in v1.0 and will be active in v1.1. 
     """
@@ -490,6 +506,10 @@ class CovidDailyDeceased:
             self.__requestObj = kwargs['REQUEST']
         else:
             return None
+    
+    def isDataAvailable(self): pass
+
+    def getinfo(self): pass
 
     def getImage(self):       
         """! 
@@ -553,7 +573,7 @@ class CovidDailyDeceased:
             return None   
 
 
-class CovidInfoMsgs:
+class CovidInfoMsgs(CovidContent):
     """!
     Constructs info messages related to a Covid search
     """
@@ -567,7 +587,11 @@ class CovidInfoMsgs:
         else:
             return None
 
-    def getMsgInfo(self):
+    def isDataAvailable(self): pass
+
+    def getImage(self): pass
+	
+    def getMsgText(self):
         """! 
         Retrieves any informational messages related to the search requested by the user. It creates an instance CovidModelFactory to retrieve messages for the 
         specific zipcode used for the search. It also performs a query to determine if the zip code appears in more than one county. Parameters are passed to the CovidModelFactory
@@ -599,7 +623,7 @@ class CovidInfoMsgs:
             return msg_text 
 
 
-class CovidLocation:
+class CovidLocation(CovidContent):
     """!
     Constructs and returns location info related to a Covid search.
     """
@@ -613,7 +637,11 @@ class CovidLocation:
         else:
             return None
 
-    def isDataAvailableForZip(self):
+    def getImage(self): pass
+
+    def getMsgText(self): pass
+
+    def isDataAvailable(self):
         """! 
         Determines if there is any reportable data for the zipcode and returns either True/False. It constructs a CovidModelFactory object and passes a parameter list containing:
         MODEL_TYPE, LOCATION_TYPE, ZIPCODE and ReturnType.

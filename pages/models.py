@@ -98,7 +98,7 @@ class CovidModelFactory(CovidModel):
     
     def __createCovidModelInstance(self, *args, **kwargs):
         """
-        Use the args to identify the ideal class
+        Use the args to identify the appropriate model class
         """
         try:
             if 'MODEL_TYPE' in kwargs:
