@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="17" passed="17" failed="0" skipped="0">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2020-12-02T16:52:15 EST" name="Refression" finished-at="2020-12-02T16:54:52 EST" duration-ms="156718">
+    <groups>
+    </groups>
+    <test started-at="2020-12-02T16:52:15 EST" name="homePageSuite" finished-at="2020-12-02T16:53:35 EST" duration-ms="80078">
+      <class name="homePageSuite.VerifyValidZipCode">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:homePageSuite.VerifyValidZipCode@273e7444]" started-at="2020-12-02T16:52:56 EST" name="initialize" finished-at="2020-12-02T16:53:02 EST" duration-ms="6313" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyValidZipCodeTest(java.lang.String)[pri:0, instance:homePageSuite.VerifyValidZipCode@273e7444]" started-at="2020-12-02T16:53:16 EST" name="VerifyValidZipCodeTest" data-provider="getZipCode" finished-at="2020-12-02T16:53:26 EST" duration-ms="9791" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[19454]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyValidZipCodeTest -->
+        <test-method signature="VerifyValidZipCodeTest(java.lang.String)[pri:0, instance:homePageSuite.VerifyValidZipCode@273e7444]" started-at="2020-12-02T16:53:26 EST" name="VerifyValidZipCodeTest" data-provider="getZipCode" finished-at="2020-12-02T16:53:35 EST" duration-ms="9112" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[33319]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyValidZipCodeTest -->
+        <test-method is-config="true" signature="closeAll()[pri:0, instance:homePageSuite.VerifyValidZipCode@273e7444]" started-at="2020-12-02T16:53:35 EST" name="closeAll" finished-at="2020-12-02T16:53:35 EST" duration-ms="90" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- closeAll -->
+      </class> <!-- homePageSuite.VerifyValidZipCode -->
+      <class name="homePageSuite.VerifyWebsiteURL">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:homePageSuite.VerifyWebsiteURL@72e5a8e]" started-at="2020-12-02T16:53:02 EST" name="initialize" finished-at="2020-12-02T16:53:08 EST" duration-ms="5527" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyWebsiteURLTest()[pri:0, instance:homePageSuite.VerifyWebsiteURL@72e5a8e]" started-at="2020-12-02T16:53:08 EST" name="VerifyWebsiteURLTest" finished-at="2020-12-02T16:53:09 EST" duration-ms="615" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyWebsiteURLTest -->
+      </class> <!-- homePageSuite.VerifyWebsiteURL -->
+      <class name="homePageSuite.VerifyInvalidZipCode">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:homePageSuite.VerifyInvalidZipCode@52b1beb6]" started-at="2020-12-02T16:52:50 EST" name="initialize" finished-at="2020-12-02T16:52:56 EST" duration-ms="5792" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyInvalidZipCodeTest(java.lang.String)[pri:0, instance:homePageSuite.VerifyInvalidZipCode@52b1beb6]" started-at="2020-12-02T16:53:10 EST" name="VerifyInvalidZipCodeTest" data-provider="getZipCode" finished-at="2020-12-02T16:53:12 EST" duration-ms="2093" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[3345]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyInvalidZipCodeTest -->
+        <test-method signature="VerifyInvalidZipCodeTest(java.lang.String)[pri:0, instance:homePageSuite.VerifyInvalidZipCode@52b1beb6]" started-at="2020-12-02T16:53:12 EST" name="VerifyInvalidZipCodeTest" data-provider="getZipCode" finished-at="2020-12-02T16:53:13 EST" duration-ms="1813" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[asdfgf]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyInvalidZipCodeTest -->
+        <test-method signature="VerifyInvalidZipCodeTest(java.lang.String)[pri:0, instance:homePageSuite.VerifyInvalidZipCode@52b1beb6]" started-at="2020-12-02T16:53:13 EST" name="VerifyInvalidZipCodeTest" data-provider="getZipCode" finished-at="2020-12-02T16:53:16 EST" duration-ms="2650" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[123abc]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyInvalidZipCodeTest -->
+        <test-method is-config="true" signature="closeAll()[pri:0, instance:homePageSuite.VerifyInvalidZipCode@52b1beb6]" started-at="2020-12-02T16:53:35 EST" name="closeAll" finished-at="2020-12-02T16:53:35 EST" duration-ms="49" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- closeAll -->
+      </class> <!-- homePageSuite.VerifyInvalidZipCode -->
+      <class name="homePageSuite.VerifyHomePageUI">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:homePageSuite.VerifyHomePageUI@53aac487]" started-at="2020-12-02T16:52:44 EST" name="initialize" finished-at="2020-12-02T16:52:50 EST" duration-ms="6616" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyHomePageUITest()[pri:0, instance:homePageSuite.VerifyHomePageUI@53aac487]" started-at="2020-12-02T16:53:09 EST" name="VerifyHomePageUITest" finished-at="2020-12-02T16:53:10 EST" duration-ms="551" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyHomePageUITest -->
+      </class> <!-- homePageSuite.VerifyHomePageUI -->
+      <class name="homePageSuite.VerifyHomePageNavigation">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:homePageSuite.VerifyHomePageNavigation@54e1c68b]" started-at="2020-12-02T16:52:15 EST" name="initialize" finished-at="2020-12-02T16:52:44 EST" duration-ms="28556" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyHomePageNavigationTest()[pri:0, instance:homePageSuite.VerifyHomePageNavigation@54e1c68b]" started-at="2020-12-02T16:53:09 EST" name="VerifyHomePageNavigationTest" finished-at="2020-12-02T16:53:09 EST" duration-ms="420" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyHomePageNavigationTest -->
+      </class> <!-- homePageSuite.VerifyHomePageNavigation -->
+    </test> <!-- homePageSuite -->
+    <test started-at="2020-12-02T16:53:36 EST" name="contactPageSuite" finished-at="2020-12-02T16:54:01 EST" duration-ms="25316">
+      <class name="contactPageSuite.VerifyContactPageUI">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:contactPageSuite.VerifyContactPageUI@3c77d488]" started-at="2020-12-02T16:53:41 EST" name="initialize" finished-at="2020-12-02T16:53:47 EST" duration-ms="5694" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyContactPageUITest()[pri:0, instance:contactPageSuite.VerifyContactPageUI@3c77d488]" started-at="2020-12-02T16:53:56 EST" name="VerifyContactPageUITest" finished-at="2020-12-02T16:53:57 EST" duration-ms="683" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyContactPageUITest -->
+      </class> <!-- contactPageSuite.VerifyContactPageUI -->
+      <class name="contactPageSuite.VerifyContactPageNavigation">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:contactPageSuite.VerifyContactPageNavigation@738dc9b]" started-at="2020-12-02T16:53:36 EST" name="initialize" finished-at="2020-12-02T16:53:41 EST" duration-ms="5734" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyContactPageNavigationTest()[pri:0, instance:contactPageSuite.VerifyContactPageNavigation@738dc9b]" started-at="2020-12-02T16:53:53 EST" name="VerifyContactPageNavigationTest" finished-at="2020-12-02T16:53:56 EST" duration-ms="2674" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyContactPageNavigationTest -->
+      </class> <!-- contactPageSuite.VerifyContactPageNavigation -->
+      <class name="contactPageSuite.VerifyValidContactUsForm">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:contactPageSuite.VerifyValidContactUsForm@63376bed]" started-at="2020-12-02T16:53:47 EST" name="initialize" finished-at="2020-12-02T16:53:53 EST" duration-ms="6082" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyValidContactUsFormTest()[pri:0, instance:contactPageSuite.VerifyValidContactUsForm@63376bed]" started-at="2020-12-02T16:53:57 EST" name="VerifyValidContactUsFormTest" finished-at="2020-12-02T16:54:01 EST" duration-ms="4441" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyValidContactUsFormTest -->
+      </class> <!-- contactPageSuite.VerifyValidContactUsForm -->
+    </test> <!-- contactPageSuite -->
+    <test started-at="2020-12-02T16:54:01 EST" name="newsPageSuite" finished-at="2020-12-02T16:54:39 EST" duration-ms="38424">
+      <class name="newsPageSuite.VerifyNewsPageScrollFuntion">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:newsPageSuite.VerifyNewsPageScrollFuntion@644baf4a]" started-at="2020-12-02T16:54:19 EST" name="initialize" finished-at="2020-12-02T16:54:24 EST" duration-ms="5783" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyNewsPageScrollFuntionTest()[pri:0, instance:newsPageSuite.VerifyNewsPageScrollFuntion@644baf4a]" started-at="2020-12-02T16:54:34 EST" name="VerifyNewsPageScrollFuntionTest" finished-at="2020-12-02T16:54:39 EST" duration-ms="5299" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyNewsPageScrollFuntionTest -->
+      </class> <!-- newsPageSuite.VerifyNewsPageScrollFuntion -->
+      <class name="newsPageSuite.VerifyNewsPageNavigation">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:newsPageSuite.VerifyNewsPageNavigation@740cae06]" started-at="2020-12-02T16:54:13 EST" name="initialize" finished-at="2020-12-02T16:54:19 EST" duration-ms="5937" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyNewsPageNavigationTest()[pri:0, instance:newsPageSuite.VerifyNewsPageNavigation@740cae06]" started-at="2020-12-02T16:54:24 EST" name="VerifyNewsPageNavigationTest" finished-at="2020-12-02T16:54:28 EST" duration-ms="3239" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyNewsPageNavigationTest -->
+      </class> <!-- newsPageSuite.VerifyNewsPageNavigation -->
+      <class name="newsPageSuite.VerifyNewsLink">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:newsPageSuite.VerifyNewsLink@26d9b808]" started-at="2020-12-02T16:54:01 EST" name="initialize" finished-at="2020-12-02T16:54:07 EST" duration-ms="5745" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyNewsLinkTest()[pri:0, instance:newsPageSuite.VerifyNewsLink@26d9b808]" started-at="2020-12-02T16:54:28 EST" name="VerifyNewsLinkTest" finished-at="2020-12-02T16:54:30 EST" duration-ms="2913" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyNewsLinkTest -->
+      </class> <!-- newsPageSuite.VerifyNewsLink -->
+      <class name="newsPageSuite.VerifyNewsLinksOpensInNewWindow">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:newsPageSuite.VerifyNewsLinksOpensInNewWindow@f78a47e]" started-at="2020-12-02T16:54:07 EST" name="initialize" finished-at="2020-12-02T16:54:13 EST" duration-ms="5781" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyNewsLinkTest()[pri:0, instance:newsPageSuite.VerifyNewsLinksOpensInNewWindow@f78a47e]" started-at="2020-12-02T16:54:30 EST" name="VerifyNewsLinkTest" finished-at="2020-12-02T16:54:34 EST" duration-ms="3718" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyNewsLinkTest -->
+      </class> <!-- newsPageSuite.VerifyNewsLinksOpensInNewWindow -->
+    </test> <!-- newsPageSuite -->
+    <test started-at="2020-12-02T16:54:40 EST" name="aboutPageSuite" finished-at="2020-12-02T16:54:52 EST" duration-ms="12253">
+      <class name="aboutPageSuite.VerifyAboutPageNavigation">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:aboutPageSuite.VerifyAboutPageNavigation@2e8c1c9b]" started-at="2020-12-02T16:54:40 EST" name="initialize" finished-at="2020-12-02T16:54:45 EST" duration-ms="5736" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyAboutPageNavigationTest()[pri:0, instance:aboutPageSuite.VerifyAboutPageNavigation@2e8c1c9b]" started-at="2020-12-02T16:54:51 EST" name="VerifyAboutPageNavigationTest" finished-at="2020-12-02T16:54:51 EST" duration-ms="375" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyAboutPageNavigationTest -->
+      </class> <!-- aboutPageSuite.VerifyAboutPageNavigation -->
+      <class name="aboutPageSuite.VerifyAboutParagraphText">
+        <test-method is-config="true" signature="initialize()[pri:0, instance:aboutPageSuite.VerifyAboutParagraphText@53fe15ff]" started-at="2020-12-02T16:54:45 EST" name="initialize" finished-at="2020-12-02T16:54:51 EST" duration-ms="5760" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initialize -->
+        <test-method signature="VerifyAboutPageNavigationTest()[pri:0, instance:aboutPageSuite.VerifyAboutParagraphText@53fe15ff]" started-at="2020-12-02T16:54:51 EST" name="VerifyAboutPageNavigationTest" finished-at="2020-12-02T16:54:52 EST" duration-ms="377" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- VerifyAboutPageNavigationTest -->
+      </class> <!-- aboutPageSuite.VerifyAboutParagraphText -->
+    </test> <!-- aboutPageSuite -->
+  </suite> <!-- Refression -->
+</testng-results>

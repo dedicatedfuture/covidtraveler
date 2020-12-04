@@ -105,8 +105,10 @@ WSGI_APPLICATION = 'covidtraveler.wsgi.application'
 
 
 
-#COVIDTRAVELERDBPASSWORD = os.environ.get('COVIDTRAVELERDBPASSWORD')
-#COVIDTRAVELERAWSHOST = os.environ.get('COVIDTRAVELERAWSHOST')
+
+COVIDTRAVELERDBPASSWORD = os.environ.get('COVIDTRAVELERDBPASSWORD')
+COVIDTRAVELERAWSHOST = os.environ.get('COVIDTRAVELERAWSHOST')
+
 
 
 # Database
@@ -117,8 +119,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'covidtraveler_db',
         'USER': 'django',
-        'PASSWORD': 'Dec20il1',
-        'HOST': 'ls-d7c62a69d711fca3750848992bf791eb7f10f296.c4sboxa3vhx9.us-east-1.rds.amazonaws.com',
+        'PASSWORD': COVIDTRAVELERDBPASSWORD,
+        'HOST': COVIDTRAVELERAWSHOST,
         'PORT': '3306',
     }
 }
